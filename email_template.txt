@@ -1,0 +1,26 @@
+Template:
+Short Introduction – A brief mention of who you are and why you're reaching out.
+Background & Experience – 1-2 paragraphs highlighting relevant experience, skills, or projects that align with the team’s work.
+Why You’re a Good Fit – A closing statement explaining why you’d be a valuable addition to their team and expressing interest in further discussion.
+Here’s a general template I use:
+Subject: Application for [Role] Position at [Company/Team]
+Dear [Recipient's Name],
+I hope you're doing well. I’m reaching out to express my interest in the [Role] at [Company/Team]. With a strong background in [relevant expertise], I’m excited about the opportunity to contribute to [specific area of work].
+Currently, I am [your current role or studies] at [Institution/Company], where I have worked on [brief mention of key research/work]. For example, in my recent work at [Previous Company], I [describe one key achievement]. Additionally, I have experience in [mention another relevant project or skill], which I believe aligns with the goals of your team.
+Given my experience in [specific skills], I’m eager to explore how I can contribute to [Company/Team] and would love the opportunity to discuss further. I have attached my resume for your reference. Looking forward to hearing your thoughts!
+Best regards,
+[Your Name]
+
+
+Example for above template:
+Dear Max,
+I hope this message finds you well.
+I'm writing to express my interest in the Backend Engineer position at X Labs. With hands-on experience in backend systems, cloud infrastructure I'm excited about the opportunity to contribute to your team.
+Currently, I'm interning at the Allen Institute for Al, where I've worked on large scale hypothesis evaluation systems for LLMs. Previously, at M C and D, I engineered distributed microservices, built CI/CD pipelines, and containerized event driven architectures using Kubernetes and Docker. My academic foundation in computer science, coupled with a strong track record of delivering reliable, performant backend solutions, aligns well with the challenges at Vest.
+I'm particularly drawn to your mission of building trustless financial infrastructure. The intersection of distributed systems, algorithmic design, and cryptographic security is exactly where I want to be.
+I've attached my resume for your review. I would welcome the chance to speak further and learn more about the role and your vision at Vest Labs. Thank you for your time and consideration.
+Best regards,
+Sam Altman
+& +1 (999)-000-000
+• samaltman@gmail.com
+© Linkedin | GitHub

@@ -1,0 +1,71 @@
+Prashanth Koripalli
+(408) 334-6729 | prashanthkoripalli22@gmail.com | Linkedin = https://www.linkedin.com/in/prashanth-koripalli-7606b9189 | GitHub =  https://github.com/Prashanthkorip | Bayarea, CA 95113
+
+Education : 
+
+Master of Science in Artificial Intelligence Jan 2024 – Dec 2025
+San Jose State University, USA
+
+Course Work: AI and Data Engineering, Machine Learning, Intelligent Autonomous Systems, Deep Learning, Reinforcement
+Learning, Graphs in Robotics, Advance Data Mining, Enterprise Application Development
+
+Technical Skills : 
+
+Languages: Python, C++, C, Java, R, Rust, CUDA, Bash, JavaScript, ShellScript, TypeScript, SCSS, HTML/CSS, SQL.
+Frameworks: PyTorch, TensorFlow, Ollama, Docker, Kubernetes, React, Next.js, Node, Redux, GraphQL.
+Tools/ Paradigms: WandB, Git, Github, Jira, Dspy, OpenAI Gym, Jenkins, Power BI, Tableau, Amazon Web Services.
+Databases: MySQL, OracleDB, SQL, PostgreSQL , MongoDB, Firebase, Apache Kafka, Redis.
+
+Experience : 
+
+Associate Software Developer | Oracle Corporation Aug 2022 – Jan 2024
+
+• Built scalable ML inference pipelines to transition models from AWS to OCI, and enhanced OCI dashboards to support
+real-time risk ranking and visualization, improving decision-making for customers like the US Army and Pfizer.
+• Integrated Newmetrix’s AI-powered safety risk models into Oracle Construction Intelligence Cloud (CIC) post-acquisition,
+enabling predictive analytics and automated safety insights for construction clients.
+• Engineered and deployed a multi-tenant platform, ’Oracle Lobby,’ with integrated unified authentication for multiple Primavera
+applications, streamlining user access and reducing login times by 30%.
+• Optimized PL/SQL scripts and SQL queries for Primavera Analytics, resolving Data Warehousing issues with sources like P6,
+Unifier, and tools like OBI and OCI, improving query speed and system reliability by 20%.
+
+Data Analyst Intern | Oracle Corporation Jan 2022 – July 2022
+
+• Acquired expertise in Oracle tools like Primavera, P6, and OCI within 3 months by actively engaging in training, concurrently
+working on tasks, and manually testing daily runs, resulting in enhanced tool reliability and project efficiency.
+• Automated daily and weekly test runs using Selenium for Oracle’s analytics platforms, streamlining UI/UX workflows and
+functional testing, reducing manual testing time by 50% and improving testing efficiency.
+• Led the successful migration of 15,000 Confluence documentations from CEGBU to GBU, ensuring no data loss by developing
+an automated script to validate and cross-check content, resulting in streamlined access and better collaboration across teams.
+
+Projects : 
+
+AR HUD Navigation | PyTorch, WandB, CUDA, Unity
+• Developed an AI-powered lane detection system using Barracuda for precise HUD and waypoint alignment in Unity.
+• Engineered an ML-based navigation framework to compute and present real-time directional guidance with checkpoints.
+• Enhanced model inference for minimal latency, ensuring smooth integration within a simulated AR environment.
+
+SAMMY AI Chatbot | Python, NLP, RAG, LLM
+• Built ‘Sammy,’ an LLM-powered retrieval system using RAG for SJSU, providing 24/7 responses with 100% positive feedback.
+• Optimized inference to support 20 users on a V100 with 200ms latency, scaling to 500 via distributed inference on 8 A100s.
+• Engineered a confidence-based response modulation system, dynamically adjusting the chatbot’s tone to ensure contextual
+sensitivity and reducing 99% of model hallucinations in query responses.
+
+Perception & Path-Planning System | PyTorch, TensorRT, WandB, Distributed Training, Autonomous Systems
+• Developed an object detection pipeline for RGB Camera with TensorRT, achieving 98% accuracy at 35 FPS.
+• Built a reinforcement learning-based path-planning module, maintaining 90% speed and lane compliance in urban areas.
+• Optimized multi-GPU training with MLOps, cutting training time by 40% while using WandB for tracking.
+
+EBay Challenge Entity Extraction (Team Name: Edgerunners) | Python, Ollama, Dspy, PyTorch, TorchTune
+• Fine-tuned Llama 3.1 with LoRA to map 5M+ automobile part records to compatible car models in Year-Make-Model format,
+utilizing 300GB of website data for improved accuracy.
+• Designed a distributed inference system across multiple GPU nodes on HPC, cutting inference time from 10 days (single A100
+GPU) to 23 hours using 16 A100 GPUs.
+• Applied entropy-based sampling to filter high-confidence predictions, increasing the F0.2 score by 13% (0.49 to 0.62).
+
+Achievements: 
+
+• Achieved 5th Rank in eBay Machine Learning Challenge (2024), USA: Successfully tackled entity
+extraction for mapping 5M+ automobile part records to compatible car models.
+• Massachusetts Institute of Technology Covid Challenge, Winning Team (2020): Won the hackathon by
+developing a digital loan approval system for unregistered MSMEs to address key challenges faced by small businesses.
