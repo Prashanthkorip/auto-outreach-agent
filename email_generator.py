@@ -2,12 +2,13 @@ import openai
 import os
 from typing import Optional
 from config import OPENAI_API_KEY, OPENAI_MODEL
+from logger import logger
 
 
 class EmailGenerator:
     def __init__(self):
-        # Set the API key directly
-        openai.api_key = OPENAI_API_KEY
+        # Initialize the OpenAI client with the API key
+        self.client = openai.OpenAI(api_key=OPENAI_API_KEY)
         self.model = OPENAI_MODEL
 
     def extract_resume_text(self, resume_path: str) -> Optional[str]:
@@ -24,7 +25,7 @@ class EmailGenerator:
             with open(resume_path, "r") as file:
                 return file.read()
         except Exception as e:
-            print(f"Error extracting resume text: {str(e)}")
+            logger.error(f"Error extracting resume text: {str(e)}")
             return None
 
     def generate_email(
@@ -48,6 +49,9 @@ class EmailGenerator:
             max_text_length = 12000  # Adjust based on model's token limit
             if len(job_page_text) > max_text_length:
                 job_page_text = job_page_text[:max_text_length] + "..."
+                logger.warning(
+                    f"Job page text was truncated to {max_text_length} characters"
+                )
 
             prompt = f"""
             I need you to perform two tasks:
@@ -82,8 +86,8 @@ class EmailGenerator:
             Format your response as a complete email ready to be sent.
             """
 
-            # Use the direct API call pattern
-            response = openai.chat.completions.create(
+            # Use the client instance to make the API call
+            response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {
@@ -99,5 +103,5 @@ class EmailGenerator:
             return response.choices[0].message.content
 
         except Exception as e:
-            print(f"Error generating email: {str(e)}")
+            logger.error(f"Error generating email: {str(e)}")
             return None
