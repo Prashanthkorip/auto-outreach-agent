@@ -1,6 +1,7 @@
-import openai
-import os
 from typing import Optional
+
+import openai
+
 from config import OPENAI_API_KEY, OPENAI_MODEL
 from logger import logger
 

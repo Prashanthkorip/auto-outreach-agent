@@ -1,7 +1,5 @@
 import logging
-import os
 import sys
-from datetime import datetime
 from typing import Optional
 
 # ANSI color codes

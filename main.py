@@ -1,9 +1,11 @@
+import os
+
 import pandas as pd
-from job_scraper import JobScraper
+
+from config import DATASET_PATH, RESUME_PATH, TEMPLATE_PATH
 from email_generator import EmailGenerator
 from email_sender import EmailSender
-from config import RESUME_PATH, DATASET_PATH, TEMPLATE_PATH
-import os
+from job_scraper import JobScraper
 from logger import logger
 
 
