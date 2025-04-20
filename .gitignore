@@ -46,3 +46,4 @@ Thumbs.db
 # Credentials
 *.json
 *.lock
+resume_parsed.txt
