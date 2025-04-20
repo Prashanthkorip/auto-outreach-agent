@@ -1,6 +1,6 @@
-# Cold Mail Automation
+# AIRA - AI Reachout Assistant
 
-A Python-based system for automating the process of sending personalized cold emails to job opportunities.
+A Python-based system for automating the process of sending personalized emails to job opportunities.
 
 ## Features
 
@@ -12,17 +12,17 @@ A Python-based system for automating the process of sending personalized cold em
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/coldmail-automation.git
-   cd coldmail-automation
+   git clone https://github.com/Prashanthkorip/auto-outreach-agent.git
+   cd auto-outreach-agent
    ```
 
 2. Install dependencies:
    ```
-   pip install -r requirements.txt
+   uv sync
    ```
 
 3. Create necessary files:
-   - `prashanth.txt`: Your resume in text format
+   - `resume_parsed.txt`: Your resume in text format
    - `email_dataset.csv`: CSV file with recipient email addresses
    - `email_template.txt`: Template for your cold emails
    - `.env`: Environment variables file with your API keys
@@ -30,21 +30,20 @@ A Python-based system for automating the process of sending personalized cold em
 4. Configure your `.env` file:
    ```
    OPENAI_API_KEY=your_openai_api_key
-   EMAIL_ADDRESS=your_email_address
-   EMAIL_PASSWORD=your_email_password
    ```
 
 ## Usage
 
 Run the main script:
 ```
-python main.py
+uv run python main.py
 ```
 
 Follow the prompts to:
 1. Enter a job description URL
 2. Review the scraped content
 3. Confirm sending the generated email
+4. Enter a subject line (changing this soon...)
 
 ## Project Structure
 
@@ -56,4 +55,4 @@ Follow the prompts to:
 
 ## License
 
-MIT 
+All rights reserved.
