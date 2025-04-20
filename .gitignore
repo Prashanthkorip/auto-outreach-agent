@@ -42,3 +42,7 @@ Thumbs.db
 
 # Project specific
 *.log 
+
+# Credentials
+*.json
+*.lock
