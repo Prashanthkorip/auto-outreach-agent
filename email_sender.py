@@ -4,17 +4,10 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 import base64
 from email.mime.text import MIMEText
-import pickle
+import json
 import os
 from typing import List, Optional
-from config import (
-    GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET,
-    GOOGLE_AUTH_URI,
-    GOOGLE_TOKEN_URI,
-    GOOGLE_REDIRECT_URI,
-    SENDER_EMAIL,
-)
+from logger import logger
 
 
 class EmailSender:
@@ -24,34 +17,60 @@ class EmailSender:
         self.service = None
 
     def authenticate(self):
-        """Authenticate with Gmail API."""
-        if os.path.exists("token.pickle"):
-            with open("token.pickle", "rb") as token:
-                self.creds = pickle.load(token)
-
-        if not self.creds or not self.creds.valid:
-            if self.creds and self.creds.expired and self.creds.refresh_token:
-                self.creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_config(
-                    {
-                        "web": {
-                            "client_id": GOOGLE_CLIENT_ID,
-                            "client_secret": GOOGLE_CLIENT_SECRET,
-                            "auth_uri": GOOGLE_AUTH_URI,
-                            "token_uri": GOOGLE_TOKEN_URI,
-                            "redirect_uris": [GOOGLE_REDIRECT_URI],
-                            "scopes": self.SCOPES,
-                        }
-                    },
-                    self.SCOPES,
+        """Authenticate with Gmail API using credentials.json file."""
+        try:
+            # Check if token.json exists and load credentials from it
+            if os.path.exists("token.json"):
+                logger.info("Loading existing credentials from token.json")
+                self.creds = Credentials.from_authorized_user_file(
+                    "token.json", self.SCOPES
                 )
-                self.creds = flow.run_local_server(port=0)
 
-            with open("token.pickle", "wb") as token:
-                pickle.dump(self.creds, token)
+            # If credentials are not valid, refresh or create new ones
+            if not self.creds or not self.creds.valid:
+                if self.creds and self.creds.expired and self.creds.refresh_token:
+                    logger.info("Refreshing expired credentials")
+                    try:
+                        self.creds.refresh(Request())
+                    except Exception as e:
+                        logger.error(f"Error refreshing credentials: {str(e)}")
+                        self.creds = None
+                        if os.path.exists("token.json"):
+                            os.remove("token.json")
 
-        self.service = build("gmail", "v1", credentials=self.creds)
+                # If still no valid credentials, create new ones
+                if not self.creds:
+                    logger.info(
+                        "Starting new authentication flow using credentials.json"
+                    )
+                    if not os.path.exists("credentials.json"):
+                        raise FileNotFoundError(
+                            "credentials.json file not found. Please download it from Google Cloud Console."
+                        )
+
+                    flow = InstalledAppFlow.from_client_secrets_file(
+                        "credentials.json", self.SCOPES
+                    )
+                    self.creds = flow.run_local_server(
+                        port=0,
+                        success_message="Authentication successful! You can close this window.",
+                        open_browser=True,
+                    )
+
+                # Save the credentials for future use
+                logger.info("Saving credentials to token.json")
+                with open("token.json", "w") as token:
+                    token.write(self.creds.to_json())
+
+            # Build the Gmail service
+            logger.info("Building Gmail service")
+            self.service = build("gmail", "v1", credentials=self.creds)
+            logger.info("Gmail service built successfully")
+
+        except Exception as e:
+            logger.error(f"Authentication error: {str(e)}")
+            self.service = None
+            raise
 
     def create_message(self, to: str, subject: str, message_text: str) -> dict:
         """Create a message for an email."""
@@ -75,13 +94,28 @@ class EmailSender:
         """
         try:
             if not self.service:
+                logger.info("Gmail service not initialized, authenticating...")
                 self.authenticate()
+                if not self.service:
+                    logger.error("Failed to initialize Gmail service")
+                    return False
+
+            logger.info(f"Sending email to {to}")
+            logger.info(f"Subject: {subject}")
+            logger.debug(
+                f"Message: {message_text}"
+            )  # Changed to debug level for long messages
 
             message = self.create_message(to, subject, message_text)
+            if not message:
+                logger.error("Failed to create email message")
+                return False
+
             self.service.users().messages().send(userId="me", body=message).execute()
+            logger.info(f"Email sent successfully to {to}")
             return True
         except Exception as e:
-            print(f"Error sending email: {str(e)}")
+            logger.error(f"Error sending email: {str(e)}")
             return False
 
     def send_bulk_emails(
@@ -101,15 +135,27 @@ class EmailSender:
         stats = {"total": len(recipients), "successful": 0, "failed": 0}
 
         for email in recipients:
-            # Extract name from email (assuming format: name@domain.com)
-            name = email.split("@")[0].replace(".", " ").title()
+            try:
+                if not email or not isinstance(email, str):
+                    logger.warning(f"Skipping invalid email address: {email}")
+                    stats["failed"] += 1
+                    continue
 
-            # Replace placeholder with actual name
-            personalized_message = template.replace("Hello", f"Hello {name}")
+                # Extract name from email (assuming format: name@domain.com)
+                name = email.split("@")[0].replace(".", " ").title()
+                if not name:
+                    logger.warning(f"Could not extract name from email: {email}")
+                    name = "there"  # Fallback to a generic greeting
 
-            if self.send_email(email, subject, personalized_message):
-                stats["successful"] += 1
-            else:
+                # Replace placeholder with actual name
+                personalized_message = template.replace("Hello", f"Hello {name}")
+
+                if self.send_email(email, subject, personalized_message):
+                    stats["successful"] += 1
+                else:
+                    stats["failed"] += 1
+            except Exception as e:
+                logger.error(f"Error processing email {email}: {str(e)}")
                 stats["failed"] += 1
 
         return stats
