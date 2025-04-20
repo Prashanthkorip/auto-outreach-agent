@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from typing import Optional
+from logger import logger
 
 
 class JobScraper:
@@ -56,7 +57,7 @@ class JobScraper:
                 return soup.get_text(separator="\n", strip=True)
 
         except Exception as e:
-            print(f"Error scraping job description: {str(e)}")
+            logger.error(f"Error scraping job description: {str(e)}")
             return None
 
 
