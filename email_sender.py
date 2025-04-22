@@ -2,6 +2,7 @@ import base64
 import os
 from email.mime.text import MIMEText
 from typing import List
+import re
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -75,7 +76,61 @@ class EmailSender:
 
     def create_message(self, to: str, subject: str, message_text: str) -> dict:
         """Create a message for an email."""
-        message = MIMEText(message_text)
+        # Convert markdown-style links to HTML links
+        message_text = re.sub(
+            r"\[(.*?)\]\((.*?)\)",
+            r'<a href="\2" style="color: #0366d6; text-decoration: none;">\1</a>',
+            message_text,
+        )
+
+        # Convert plain URLs to clickable links (if any remain)
+        url_pattern = r'(?<!href=")(https?://\S+)(?!")'
+        message_text = re.sub(
+            url_pattern,
+            r'<a href="\1" style="color: #0366d6; text-decoration: none;">\1</a>',
+            message_text,
+        )
+
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body {{
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                    margin: 0;
+                    padding: 15px;
+                    max-width: 100%;
+                    color: #24292e;
+                }}
+                p {{
+                    margin-bottom: 1em;
+                    word-wrap: break-word;
+                }}
+                a {{
+                    color: #0366d6;
+                    text-decoration: none;
+                }}
+                a:hover {{
+                    text-decoration: underline;
+                }}
+                @media screen and (max-width: 600px) {{
+                    body {{
+                        padding: 10px;
+                    }}
+                }}
+            </style>
+        </head>
+        <body>
+            {message_text.replace("\n\n", "</p><p>").replace("\n", "<br>")}
+        </body>
+        </html>
+        """
+
+        message = MIMEText(html_content, "html")
         message["to"] = to
         message["subject"] = subject
         return {"raw": base64.urlsafe_b64encode(message.as_bytes()).decode()}
