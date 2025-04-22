@@ -19,7 +19,7 @@ class EmailSender:
         self.SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
         self.creds = None
         self.service = None
-        self.pdf_path = "prashanth_n.pdf"  # PDF file path
+        self.pdf_path = "ai.pdf"  # PDF file path
 
     def authenticate(self):
         """Authenticate with Gmail API using credentials.json file."""
@@ -133,12 +133,14 @@ class EmailSender:
         </html>
         """
 
-        message = MIMEText(html_content, "html")
+        # Create the root message as multipart
+        message = MIMEMultipart()
         message["to"] = to
         message["subject"] = subject
 
-        # Add the email body
-        message.attach(MIMEText(message_text))
+        # Add HTML body
+        html_part = MIMEText(html_content, "html")
+        message.attach(html_part)
 
         # Add PDF attachment if it exists
         if os.path.exists(self.pdf_path):
