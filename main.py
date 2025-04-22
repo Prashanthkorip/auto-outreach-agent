@@ -98,25 +98,28 @@ def main():
         logger.error("Failed to extract resume text. Exiting...")
         return
 
-    # Generate email content (extract job description and generate email in one LLM call)
-    logger.info("Generating email content...")
-    email_content = email_generator.generate_email(
+    # Generate email content and subject
+    logger.info("Generating email content and subject...")
+    email_content, email_subject = email_generator.generate_email(
         template, job_page_text, resume_text, job_url
     )
-    if not email_content:
-        logger.error("Failed to generate email content. Exiting...")
+    if not email_content or not email_subject:
+        logger.error("Failed to generate email content or subject. Exiting...")
         return
+
+    logger.info("\nGenerated email subject:")
+    logger.info("-" * 50)
+    logger.info(email_subject)
+    logger.info("-" * 50)
 
     logger.info("\nGenerated email content:")
     logger.info("-" * 50)
-    logger.info(
-        email_content[:500] + "..." if len(email_content) > 500 else email_content
-    )
+    logger.info(email_content)
     logger.info("-" * 50)
 
     # Confirm with user
     proceed = input("\nDo you want to proceed with sending this email? (y/n): ")
-    if proceed.lower() != "y":
+    if proceed.lower() not in ["y", "yes"]:
         logger.info("Operation cancelled by user.")
         return
 
@@ -129,12 +132,9 @@ def main():
 
     logger.info(f"Found {len(recipients)} recipients in the dataset.")
 
-    # Get email subject
-    subject = input("\nPlease enter the email subject: ")
-
     # Send emails
     logger.info("\nSending emails...")
-    stats = email_sender.send_bulk_emails(recipients, subject, email_content)
+    stats = email_sender.send_bulk_emails(recipients, email_subject, email_content)
 
     # Print results
     logger.info("\nEmail sending completed!")

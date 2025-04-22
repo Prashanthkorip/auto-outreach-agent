@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 
 import openai
 
@@ -31,7 +31,7 @@ class EmailGenerator:
 
     def generate_email(
         self, template: str, job_page_text: str, resume_text: str, job_url: str
-    ) -> Optional[str]:
+    ) -> Tuple[Optional[str], Optional[str]]:
         """
         Generate personalized email using LLM in a single call.
         This function extracts the job description from the page text and generates the email.
@@ -43,7 +43,7 @@ class EmailGenerator:
             job_url (str): URL of the job posting
 
         Returns:
-            Optional[str]: Generated email or None if generation fails
+            Tuple[Optional[str], Optional[str]]: A tuple containing (email_content, email_subject)
         """
         try:
             # Truncate text if it's too long for the API
@@ -55,7 +55,7 @@ class EmailGenerator:
                 )
 
             prompt = f"""
-            I need you to perform two tasks:
+            I need you to perform three tasks:
             
             1. First, extract the job description from this webpage content:
             
@@ -69,7 +69,13 @@ class EmailGenerator:
             - Preferred qualifications (if any)
             - Any other relevant details about the position
             
-            2. Then, using the extracted job description, generate a personalized email using this template:
+            2. Generate a professional email subject line that:
+               - Is concise and attention-grabbing
+               - Includes the job title
+               - Is no longer than 100 characters
+               - Example: "Application for Senior Software Engineer Position"
+            
+            3. Then, using the extracted job description, generate a personalized email using this template:
             
             {template}
             
@@ -83,8 +89,12 @@ class EmailGenerator:
             3. Includes a personalized greeting (use "Hello" as placeholder)
             4. Ends with the job description link: {job_url}
             5. Maintains a professional and engaging tone
+            6. Has proper paragraph spacing (double line break between paragraphs)
+            7. Each line should go to the end of the page before wrapping
             
-            Format your response as a complete email ready to be sent.
+            Format your response as follows:
+            SUBJECT: [generated subject line]
+            CONTENT: [email content]
             """
 
             # Use the client instance to make the API call
@@ -93,7 +103,7 @@ class EmailGenerator:
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a professional email writer helping to create personalized job application emails.",
+                        "content": "You are a professional email writer helping to create personalized job application emails. Always format your response with SUBJECT: and CONTENT: sections. Ensure proper paragraph spacing and line breaks in the email content.",
                     },
                     {"role": "user", "content": prompt},
                 ],
@@ -101,8 +111,30 @@ class EmailGenerator:
                 max_tokens=2000,
             )
 
-            return response.choices[0].message.content
+            # Parse the response to extract subject and content
+            response_text = response.choices[0].message.content
+            subject = None
+            content = None
+
+            # Split the response into subject and content
+            if "SUBJECT:" in response_text and "CONTENT:" in response_text:
+                subject_part = response_text.split("SUBJECT:")[1].split("CONTENT:")[0].strip()
+                content_part = response_text.split("CONTENT:")[1].strip()
+                
+                # Clean up the subject and content
+                subject = subject_part.split("\n")[0].strip()
+                
+                # Preserve the original formatting of the content
+                content = content_part
+
+                # Only clean up empty lines while preserving paragraph spacing
+                content = "\n".join(
+                    line for line in content.split("\n")
+                    if line.strip() or line == ""  # Keep empty lines that are part of paragraph spacing
+                )
+
+            return content, subject
 
         except Exception as e:
             logger.error(f"Error generating email: {str(e)}")
-            return None
+            return None, None
