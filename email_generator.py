@@ -87,11 +87,13 @@ class EmailGenerator:
             1. Follows the template structure
             2. Highlights relevant experience from the resume that matches the job description
             3. Includes a personalized greeting (use "Hello" as placeholder)
-            4. Ends with the job description link: {job_url}
+            4. Ends with the job description link formatted as "[Job Description]({job_url})"
             5. Maintains a professional and engaging tone
             6. Uses short, mobile-friendly paragraphs (2-3 sentences maximum)
             7. Keeps lines concise and easy to read on mobile devices
             8. Uses clear paragraph breaks for better readability
+            9. Format ALL links using markdown style: [Link Text](URL)
+            10. For social/professional links, use descriptive text (e.g. "[View My LinkedIn Profile](url)" instead of just "[LinkedIn](url)")
             
             Format your response as follows:
             SUBJECT: [generated subject line]
