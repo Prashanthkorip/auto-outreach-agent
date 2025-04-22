@@ -1,6 +1,8 @@
 import base64
 import os
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
 from typing import List
 import re
 
@@ -17,6 +19,7 @@ class EmailSender:
         self.SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
         self.creds = None
         self.service = None
+        self.pdf_path = "prashanth_n.pdf"  # PDF file path
 
     def authenticate(self):
         """Authenticate with Gmail API using credentials.json file."""
@@ -133,6 +136,21 @@ class EmailSender:
         message = MIMEText(html_content, "html")
         message["to"] = to
         message["subject"] = subject
+
+        # Add the email body
+        message.attach(MIMEText(message_text))
+
+        # Add PDF attachment if it exists
+        if os.path.exists(self.pdf_path):
+            with open(self.pdf_path, "rb") as pdf_file:
+                pdf_attachment = MIMEApplication(pdf_file.read(), _subtype="pdf")
+                pdf_attachment.add_header(
+                    "Content-Disposition",
+                    "attachment",
+                    filename=os.path.basename(self.pdf_path),
+                )
+                message.attach(pdf_attachment)
+
         return {"raw": base64.urlsafe_b64encode(message.as_bytes()).decode()}
 
     def send_email(self, to: str, subject: str, message_text: str) -> bool:
