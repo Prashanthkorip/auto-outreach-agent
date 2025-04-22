@@ -89,8 +89,9 @@ class EmailGenerator:
             3. Includes a personalized greeting (use "Hello" as placeholder)
             4. Ends with the job description link: {job_url}
             5. Maintains a professional and engaging tone
-            6. Has proper paragraph spacing (double line break between paragraphs)
-            7. Each line should go to the end of the page before wrapping
+            6. Uses short, mobile-friendly paragraphs (2-3 sentences maximum)
+            7. Keeps lines concise and easy to read on mobile devices
+            8. Uses clear paragraph breaks for better readability
             
             Format your response as follows:
             SUBJECT: [generated subject line]
@@ -118,19 +119,23 @@ class EmailGenerator:
 
             # Split the response into subject and content
             if "SUBJECT:" in response_text and "CONTENT:" in response_text:
-                subject_part = response_text.split("SUBJECT:")[1].split("CONTENT:")[0].strip()
+                subject_part = (
+                    response_text.split("SUBJECT:")[1].split("CONTENT:")[0].strip()
+                )
                 content_part = response_text.split("CONTENT:")[1].strip()
-                
+
                 # Clean up the subject and content
                 subject = subject_part.split("\n")[0].strip()
-                
+
                 # Preserve the original formatting of the content
                 content = content_part
 
                 # Only clean up empty lines while preserving paragraph spacing
                 content = "\n".join(
-                    line for line in content.split("\n")
-                    if line.strip() or line == ""  # Keep empty lines that are part of paragraph spacing
+                    line
+                    for line in content.split("\n")
+                    if line.strip()
+                    or line == ""  # Keep empty lines that are part of paragraph spacing
                 )
 
             return content, subject
