@@ -12,6 +12,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
 from logger import logger
+from config import RESUME_PDF_PATH
 
 
 class EmailSender:
@@ -19,7 +20,7 @@ class EmailSender:
         self.SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
         self.creds = None
         self.service = None
-        self.pdf_path = "ai.pdf"  # PDF file path
+        self.pdf_path = RESUME_PDF_PATH  # Use the resume PDF path from config
 
     def authenticate(self):
         """Authenticate with Gmail API using credentials.json file."""
@@ -94,6 +95,13 @@ class EmailSender:
             message_text,
         )
 
+        # Convert **text** to bold text
+        message_text = re.sub(
+            r"\*\*(.*?)\*\*",
+            r'<strong>\1</strong>',
+            message_text,
+        )
+
         html_content = f"""
         <!DOCTYPE html>
         <html>
@@ -119,6 +127,10 @@ class EmailSender:
                 }}
                 a:hover {{
                     text-decoration: underline;
+                }}
+                strong {{
+                    font-weight: bold;
+                    color: #24292e;
                 }}
                 @media screen and (max-width: 600px) {{
                     body {{

@@ -85,7 +85,7 @@ class EmailGenerator:
             
             Please generate a professional email that:
             1. Follows the template structure
-            2. Highlights relevant experience from the resume that matches the job description
+            2. Highlights relevant experience from the resume that matches the job description using **bold text** for key skills and achievements
             3. Includes a personalized greeting (use "Hello" as placeholder)
             4. Ends with the job description link formatted as "[Job Description]({job_url})"
             5. Maintains a professional and engaging tone
@@ -94,6 +94,11 @@ class EmailGenerator:
             8. Uses clear paragraph breaks for better readability
             9. Format ALL links using markdown style: [Link Text](URL)
             10. For social/professional links, use descriptive text (e.g. "[View My LinkedIn Profile](url)" instead of just "[LinkedIn](url)")
+            11. Use **bold text** to highlight:
+                - Key skills that match the job requirements
+                - Notable achievements
+                - Years of relevant experience
+                - Specific technologies or tools mentioned in the job description
             
             Format your response as follows:
             SUBJECT: [generated subject line]
