@@ -2,11 +2,11 @@ import os
 
 import pandas as pd
 
-from config import DATASET_PATH, RESUME_PATH, TEMPLATE_PATH
-from email_generator import EmailGenerator
-from email_sender import EmailSender
-from job_scraper import JobScraper
-from logger import logger
+from src.core.config import DATASET_PATH, RESUME_PATH, TEMPLATE_PATH
+from src.generation.email_generator import EmailGenerator
+from src.utils.email_sender import EmailSender
+from src.generation.job_scraper import JobScraper
+from src.utils.logger import logger
 
 
 def load_email_dataset(file_path: str) -> list:

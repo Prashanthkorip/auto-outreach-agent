@@ -2,7 +2,7 @@ import pandas as pd
 import datetime
 from typing import List, Dict, Optional
 import os
-from logger import logger
+from src.utils.logger import logger
 
 
 class EmailTracker:

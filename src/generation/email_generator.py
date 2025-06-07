@@ -2,8 +2,8 @@ from typing import Optional, Tuple
 
 import openai
 
-from config import OPENAI_API_KEY, OPENAI_MODEL
-from logger import logger
+from src.core.config import OPENAI_API_KEY, OPENAI_MODEL
+from src.utils.logger import logger
 
 
 class EmailGenerator:

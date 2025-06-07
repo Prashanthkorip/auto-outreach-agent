@@ -11,9 +11,9 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-from logger import logger
-from config import RESUME_PDF_PATH
-from email_tracker import EmailTracker
+from src.utils.logger import logger
+from src.core.config import RESUME_PDF_PATH
+from src.tracking.email_tracker import EmailTracker
 
 
 class EmailSender:

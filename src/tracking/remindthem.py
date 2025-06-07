@@ -11,9 +11,9 @@ import datetime
 from typing import List, Dict
 import time
 
-from email_sender import EmailSender
-from email_tracker import EmailTracker
-from logger import logger
+from src.utils.email_sender import EmailSender
+from src.tracking.email_tracker import EmailTracker
+from src.utils.logger import logger
 
 
 class FollowUpManager:
