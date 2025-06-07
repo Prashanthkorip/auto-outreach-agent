@@ -13,14 +13,19 @@ from googleapiclient.discovery import build
 
 from logger import logger
 from config import RESUME_PDF_PATH
+from email_tracker import EmailTracker
 
 
 class EmailSender:
-    def __init__(self):
-        self.SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
+    def __init__(self, tracking_file: str = "email_tracking.xlsx"):
+        self.SCOPES = [
+            "https://www.googleapis.com/auth/gmail.send",
+            "https://www.googleapis.com/auth/gmail.readonly"
+        ]
         self.creds = None
         self.service = None
         self.pdf_path = RESUME_PDF_PATH  # Use the resume PDF path from config
+        self.tracker = EmailTracker(tracking_file)  # Initialize tracker
 
     def authenticate(self):
         """Authenticate with Gmail API using credentials.json file."""
@@ -78,7 +83,42 @@ class EmailSender:
             self.service = None
             raise
 
-    def create_message(self, to: str, subject: str, message_text: str) -> dict:
+    def get_message_headers(self, message_id: str) -> dict:
+        """
+        Get headers from an existing message for threading.
+        
+        Args:
+            message_id: Gmail message ID
+            
+        Returns:
+            Dict containing relevant headers
+        """
+        try:
+            if not self.service:
+                return {}
+                
+            message = self.service.users().messages().get(
+                userId='me', 
+                id=message_id,
+                format='metadata',
+                metadataHeaders=['Message-ID', 'Subject']
+            ).execute()
+            
+            headers = {}
+            if 'payload' in message and 'headers' in message['payload']:
+                for header in message['payload']['headers']:
+                    if header['name'] == 'Message-ID':
+                        headers['message_id'] = header['value']
+                    elif header['name'] == 'Subject':
+                        headers['subject'] = header['value']
+            
+            return headers
+            
+        except Exception as e:
+            logger.warning(f"Could not retrieve message headers for {message_id}: {str(e)}")
+            return {}
+
+    def create_message(self, to: str, subject: str, message_text: str, reply_to_message_id: str = None) -> dict:
         """Create a message for an email."""
         # Convert markdown-style links to HTML links
         message_text = re.sub(
@@ -148,7 +188,31 @@ class EmailSender:
         # Create the root message as multipart
         message = MIMEMultipart()
         message["to"] = to
-        message["subject"] = subject
+        
+        # Handle threading for replies
+        if reply_to_message_id:
+            # Get the original message headers
+            original_headers = self.get_message_headers(reply_to_message_id)
+            original_message_id = original_headers.get('message_id', '')
+            original_subject = original_headers.get('subject', subject)
+            
+            # Set proper reply subject
+            if not subject.startswith("Re: ") and not original_subject.startswith("Re: "):
+                message["subject"] = f"Re: {original_subject}"
+            elif original_subject.startswith("Re: "):
+                message["subject"] = original_subject
+            else:
+                message["subject"] = subject
+            
+            # Add threading headers if we have the original Message-ID
+            if original_message_id:
+                message["In-Reply-To"] = original_message_id
+                message["References"] = original_message_id
+                logger.info(f"Threading reply with Message-ID: {original_message_id}")
+            else:
+                logger.warning(f"Could not retrieve original Message-ID for threading")
+        else:
+            message["subject"] = subject
 
         # Add HTML body
         html_part = MIMEText(html_content, "html")
@@ -167,7 +231,7 @@ class EmailSender:
 
         return {"raw": base64.urlsafe_b64encode(message.as_bytes()).decode()}
 
-    def send_email(self, to: str, subject: str, message_text: str) -> bool:
+    def send_email(self, to: str, subject: str, message_text: str, is_followup: bool = False, reply_to_message_id: str = None) -> dict:
         """
         Send an email using Gmail API.
 
@@ -175,9 +239,11 @@ class EmailSender:
             to (str): Recipient email address
             subject (str): Email subject
             message_text (str): Email body
+            is_followup (bool): Whether this is a follow-up email
+            reply_to_message_id (str): Message ID to reply to (for threading)
 
         Returns:
-            bool: True if email sent successfully, False otherwise
+            dict: Contains success status and message_id if successful
         """
         try:
             if not self.service:
@@ -185,25 +251,49 @@ class EmailSender:
                 self.authenticate()
                 if not self.service:
                     logger.error("Failed to initialize Gmail service")
-                    return False
+                    self.tracker.log_email_attempt(to, subject, "failed", "Failed to initialize Gmail service", is_followup=is_followup)
+                    return {"success": False, "message_id": None}
 
             logger.info(f"Sending email to {to}")
             logger.info(f"Subject: {subject}")
+            if reply_to_message_id:
+                logger.info(f"Replying to message ID: {reply_to_message_id}")
             logger.debug(
                 f"Message: {message_text}"
             )  # Changed to debug level for long messages
 
-            message = self.create_message(to, subject, message_text)
+            message = self.create_message(to, subject, message_text, reply_to_message_id)
             if not message:
                 logger.error("Failed to create email message")
-                return False
+                self.tracker.log_email_attempt(to, subject, "failed", "Failed to create email message", is_followup=is_followup)
+                return {"success": False, "message_id": None}
 
-            self.service.users().messages().send(userId="me", body=message).execute()
-            logger.info(f"Email sent successfully to {to}")
-            return True
+            # If this is a follow-up, try to get the thread ID from the original message
+            send_params = {"userId": "me", "body": message}
+            if reply_to_message_id:
+                try:
+                    original_message = self.service.users().messages().get(
+                        userId='me', 
+                        id=reply_to_message_id,
+                        format='minimal'
+                    ).execute()
+                    
+                    if 'threadId' in original_message:
+                        send_params["body"]["threadId"] = original_message['threadId']
+                        logger.info(f"Using thread ID: {original_message['threadId']}")
+                except Exception as e:
+                    logger.warning(f"Could not get thread ID: {str(e)}")
+
+            result = self.service.users().messages().send(**send_params).execute()
+            message_id = result.get('id')
+            logger.info(f"Email sent successfully to {to}, Message ID: {message_id}")
+            self.tracker.log_email_attempt(to, subject, "success", message_id=message_id, is_followup=is_followup)
+            return {"success": True, "message_id": message_id}
         except Exception as e:
-            logger.error(f"Error sending email: {str(e)}")
-            return False
+            error_msg = str(e)
+            logger.error(f"Error sending email: {error_msg}")
+            self.tracker.log_email_attempt(to, subject, "failed", error_msg, is_followup=is_followup)
+            return {"success": False, "message_id": None}
 
     def send_bulk_emails(
         self, recipients: List[str], subject: str, template: str
@@ -226,6 +316,7 @@ class EmailSender:
                 if not email or not isinstance(email, str):
                     logger.warning(f"Skipping invalid email address: {email}")
                     stats["failed"] += 1
+                    self.tracker.log_email_attempt(email, subject, "failed", "Invalid email address")
                     continue
 
                 # Extract name from email (assuming format: name@domain.com)
@@ -237,12 +328,40 @@ class EmailSender:
                 # Replace placeholder with actual name
                 personalized_message = template.replace("Hello", f"Hello {name}")
 
-                if self.send_email(email, subject, personalized_message):
+                result = self.send_email(email, subject, personalized_message)
+                if result["success"]:
                     stats["successful"] += 1
                 else:
                     stats["failed"] += 1
             except Exception as e:
-                logger.error(f"Error processing email {email}: {str(e)}")
+                error_msg = str(e)
+                logger.error(f"Error processing email {email}: {error_msg}")
+                self.tracker.log_email_attempt(email, subject, "failed", f"Processing error: {error_msg}")
                 stats["failed"] += 1
 
+        # Export tracking data to Excel after bulk sending
+        self.tracker.export_to_excel()
+        
+        # Print summary statistics
+        tracker_stats = self.tracker.get_statistics()
+        logger.info(f"Tracking Summary:")
+        logger.info(f"  Total emails processed: {tracker_stats['total']}")
+        logger.info(f"  Successful: {tracker_stats['successful']}")
+        logger.info(f"  Failed: {tracker_stats['failed']}")
+        logger.info(f"  Success rate: {tracker_stats['success_rate']:.1f}%")
+
         return stats
+
+    def get_tracking_statistics(self) -> dict:
+        """Get current tracking statistics."""
+        return self.tracker.get_statistics()
+    
+    def export_tracking_data(self, filename: str = None) -> None:
+        """Export tracking data to Excel."""
+        if filename:
+            self.tracker.output_file = filename
+        self.tracker.export_to_excel()
+    
+    def clear_tracking_data(self) -> None:
+        """Clear all tracking data."""
+        self.tracker.clear_data()

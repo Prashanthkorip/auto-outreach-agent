@@ -55,10 +55,10 @@ def main():
         logger.error("\nPlease create these files and try again.")
         return
 
-    # Initialize components
+    # Initialize components with tracking
     job_scraper = JobScraper()
     email_generator = EmailGenerator()
-    email_sender = EmailSender()
+    email_sender = EmailSender("email_tracking.xlsx")  # Enable tracking with custom filename
 
     # Get job description URL from user
     job_url = input("Please enter the job description URL: ")
@@ -141,6 +141,18 @@ def main():
     logger.info(f"Total emails: {stats['total']}")
     logger.info(f"Successfully sent: {stats['successful']}")
     logger.info(f"Failed to send: {stats['failed']}")
+    
+    # Get detailed tracking statistics
+    tracking_stats = email_sender.get_tracking_statistics()
+    logger.info(f"\nDetailed tracking results:")
+    logger.info(f"Success rate: {tracking_stats['success_rate']:.1f}%")
+    logger.info(f"Email tracking data has been saved to 'email_tracking.xlsx'")
+    logger.info(f"Open the file to see detailed information about each email sent including:")
+    logger.info(f"  - First and last names extracted from emails")
+    logger.info(f"  - Timestamps of when emails were sent")
+    logger.info(f"  - Success/failure status for each email")
+    logger.info(f"  - Error messages for failed emails")
+    logger.info(f"  - Summary statistics")
 
 
 if __name__ == "__main__":
