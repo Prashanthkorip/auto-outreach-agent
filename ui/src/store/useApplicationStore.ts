@@ -4,7 +4,6 @@ export interface EmailContact {
   id: string;
   email: string;
   name: string;
-  initials: string;
 }
 
 interface ApplicationState {
@@ -22,13 +21,21 @@ interface ApplicationState {
   setResumeText: (text: string) => void;
   emailList: EmailContact[];
   setEmailList: (list: EmailContact[]) => void;
+  generatedSubject: string;
+  setGeneratedSubject: (subject: string) => void;
   generatedTemplate: string;
   setGeneratedTemplate: (template: string) => void;
   reset: () => void;
+  openaiKey: string;
+  setOpenaiKey: (key: string) => void;
+  credentials: string;
+  setCredentials: (creds: string) => void;
+  emailStats: { sent: number; successful: number; failed: number } | null;
+  setEmailStats: (stats: { sent: number; successful: number; failed: number } | null) => void;
 }
 
-export const useApplicationStore = create<ApplicationState>((set: Parameters<StateCreator<ApplicationState>>[0]) => ({
-  jobUrl: "https://techcorp.com/careers/senior-software-engineer",
+export const useApplicationStore = create<ApplicationState>((set) => ({
+  jobUrl: "",
   setJobUrl: (jobUrl: string) => set({ jobUrl }),
   jobDescription: "",
   setJobDescription: (jobDescription: string) => set({ jobDescription }),
@@ -36,16 +43,35 @@ export const useApplicationStore = create<ApplicationState>((set: Parameters<Sta
   setResumeFile: (resumeFile: File | null) => set({ resumeFile }),
   resumeText: "",
   setResumeText: (resumeText: string) => set({ resumeText }),
+  emailInput: "",
+  setEmailInput: (emailInput: string) => set({ emailInput }),
+  nameInput: "",
+  setNameInput: (nameInput: string) => set({ nameInput }),
   emailList: [],
   setEmailList: (emailList: EmailContact[]) => set({ emailList }),
+  generatedSubject: "",
+  setGeneratedSubject: (generatedSubject: string) => set({ generatedSubject }),
   generatedTemplate: "",
   setGeneratedTemplate: (generatedTemplate: string) => set({ generatedTemplate }),
+  openaiKey: "",
+  setOpenaiKey: (openaiKey: string) => set({ openaiKey }),
+  credentials: "",
+  setCredentials: (credentials: string) => set({ credentials }),
+  emailStats: null,
+  setEmailStats: (emailStats) => set({ emailStats }),
   reset: () => set({
-    jobUrl: "https://techcorp.com/careers/senior-software-engineer",
+    jobUrl: "",
     jobDescription: "",
     resumeFile: null,
     resumeText: "",
+    emailInput: "",
+    nameInput: "",
     emailList: [],
-    generatedTemplate: ""
+    generatedSubject: "",
+    generatedTemplate: "",
+    openaiKey: "",
+    credentials: "",
+    emailStats: null
   })
-})); 
+}));
+

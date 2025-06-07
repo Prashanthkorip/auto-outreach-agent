@@ -4,6 +4,7 @@ import { useApplicationStore } from "@/store/useApplicationStore";
 
 export default function Step3Page() {
   const router = useRouter();
+  const { emailStats } = useApplicationStore();
   const onComplete = () => {
     router.push("/");
   };
@@ -17,6 +18,15 @@ export default function Step3Page() {
           <p className="text-gray-600 mb-6">
             Your outreach emails have been successfully sent to all recipients.
           </p>
+          {emailStats && (
+            <div className="mb-6">
+              <div className="flex justify-center gap-8 text-lg">
+                <div><span className="font-bold">Sent:</span> {emailStats.sent}</div>
+                <div><span className="font-bold text-green-700">Successful:</span> {emailStats.successful}</div>
+                <div><span className="font-bold text-red-700">Failed:</span> {emailStats.failed}</div>
+              </div>
+            </div>
+          )}
           
           <button
             onClick={onComplete}

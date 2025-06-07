@@ -12,7 +12,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
 from src.utils.logger import logger
-from src.core.config import RESUME_PDF_PATH
+from src.core.config import PATH_HELPER, RESUME_PDF_PATH
 from src.tracking.email_tracker import EmailTracker
 
 
@@ -20,7 +20,7 @@ class EmailSender:
     def __init__(self, tracking_file: str = "email_tracking.xlsx"):
         self.SCOPES = [
             "https://www.googleapis.com/auth/gmail.send",
-            "https://www.googleapis.com/auth/gmail.readonly"
+            "https://www.googleapis.com/auth/gmail.readonly",
         ]
         self.creds = None
         self.service = None
@@ -31,10 +31,10 @@ class EmailSender:
         """Authenticate with Gmail API using credentials.json file."""
         try:
             # Check if token.json exists and load credentials from it
-            if os.path.exists("token.json"):
+            if os.path.exists(PATH_HELPER.TOKEN_JSON):
                 logger.info("Loading existing credentials from token.json")
                 self.creds = Credentials.from_authorized_user_file(
-                    "token.json", self.SCOPES
+                    PATH_HELPER.TOKEN_JSON, self.SCOPES
                 )
 
             # If credentials are not valid, refresh or create new ones
@@ -46,21 +46,21 @@ class EmailSender:
                     except Exception as e:
                         logger.error(f"Error refreshing credentials: {str(e)}")
                         self.creds = None
-                        if os.path.exists("token.json"):
-                            os.remove("token.json")
+                        if os.path.exists(PATH_HELPER.TOKEN_JSON):
+                            os.remove(PATH_HELPER.TOKEN_JSON)
 
                 # If still no valid credentials, create new ones
                 if not self.creds:
                     logger.info(
                         "Starting new authentication flow using credentials.json"
                     )
-                    if not os.path.exists("credentials.json"):
+                    if not os.path.exists(PATH_HELPER.CREDENTIALS_JSON):
                         raise FileNotFoundError(
                             "credentials.json file not found. Please download it from Google Cloud Console."
                         )
 
                     flow = InstalledAppFlow.from_client_secrets_file(
-                        "credentials.json", self.SCOPES
+                        PATH_HELPER.CREDENTIALS_JSON, self.SCOPES
                     )
                     self.creds = flow.run_local_server(
                         port=0,
@@ -70,7 +70,7 @@ class EmailSender:
 
                 # Save the credentials for future use
                 logger.info("Saving credentials to token.json")
-                with open("token.json", "w") as token:
+                with open(PATH_HELPER.TOKEN_JSON, "w") as token:
                     token.write(self.creds.to_json())
 
             # Build the Gmail service
@@ -86,39 +86,48 @@ class EmailSender:
     def get_message_headers(self, message_id: str) -> dict:
         """
         Get headers from an existing message for threading.
-        
+
         Args:
             message_id: Gmail message ID
-            
+
         Returns:
             Dict containing relevant headers
         """
         try:
             if not self.service:
                 return {}
-                
-            message = self.service.users().messages().get(
-                userId='me', 
-                id=message_id,
-                format='metadata',
-                metadataHeaders=['Message-ID', 'Subject']
-            ).execute()
-            
+
+            message = (
+                self.service.users()
+                .messages()
+                .get(
+                    userId="me",
+                    id=message_id,
+                    format="metadata",
+                    metadataHeaders=["Message-ID", "Subject"],
+                )
+                .execute()
+            )
+
             headers = {}
-            if 'payload' in message and 'headers' in message['payload']:
-                for header in message['payload']['headers']:
-                    if header['name'] == 'Message-ID':
-                        headers['message_id'] = header['value']
-                    elif header['name'] == 'Subject':
-                        headers['subject'] = header['value']
-            
+            if "payload" in message and "headers" in message["payload"]:
+                for header in message["payload"]["headers"]:
+                    if header["name"] == "Message-ID":
+                        headers["message_id"] = header["value"]
+                    elif header["name"] == "Subject":
+                        headers["subject"] = header["value"]
+
             return headers
-            
+
         except Exception as e:
-            logger.warning(f"Could not retrieve message headers for {message_id}: {str(e)}")
+            logger.warning(
+                f"Could not retrieve message headers for {message_id}: {str(e)}"
+            )
             return {}
 
-    def create_message(self, to: str, subject: str, message_text: str, reply_to_message_id: str = None) -> dict:
+    def create_message(
+        self, to: str, subject: str, message_text: str, reply_to_message_id: str = None
+    ) -> dict:
         """Create a message for an email."""
         # Convert markdown-style links to HTML links
         message_text = re.sub(
@@ -138,7 +147,7 @@ class EmailSender:
         # Convert **text** to bold text
         message_text = re.sub(
             r"\*\*(.*?)\*\*",
-            r'<strong>\1</strong>',
+            r"<strong>\1</strong>",
             message_text,
         )
 
@@ -188,22 +197,24 @@ class EmailSender:
         # Create the root message as multipart
         message = MIMEMultipart()
         message["to"] = to
-        
+
         # Handle threading for replies
         if reply_to_message_id:
             # Get the original message headers
             original_headers = self.get_message_headers(reply_to_message_id)
-            original_message_id = original_headers.get('message_id', '')
-            original_subject = original_headers.get('subject', subject)
-            
+            original_message_id = original_headers.get("message_id", "")
+            original_subject = original_headers.get("subject", subject)
+
             # Set proper reply subject
-            if not subject.startswith("Re: ") and not original_subject.startswith("Re: "):
+            if not subject.startswith("Re: ") and not original_subject.startswith(
+                "Re: "
+            ):
                 message["subject"] = f"Re: {original_subject}"
             elif original_subject.startswith("Re: "):
                 message["subject"] = original_subject
             else:
                 message["subject"] = subject
-            
+
             # Add threading headers if we have the original Message-ID
             if original_message_id:
                 message["In-Reply-To"] = original_message_id
@@ -231,7 +242,14 @@ class EmailSender:
 
         return {"raw": base64.urlsafe_b64encode(message.as_bytes()).decode()}
 
-    def send_email(self, to: str, subject: str, message_text: str, is_followup: bool = False, reply_to_message_id: str = None) -> dict:
+    def send_email(
+        self,
+        to: str,
+        subject: str,
+        message_text: str,
+        is_followup: bool = False,
+        reply_to_message_id: str = None,
+    ) -> dict:
         """
         Send an email using Gmail API.
 
@@ -251,7 +269,13 @@ class EmailSender:
                 self.authenticate()
                 if not self.service:
                     logger.error("Failed to initialize Gmail service")
-                    self.tracker.log_email_attempt(to, subject, "failed", "Failed to initialize Gmail service", is_followup=is_followup)
+                    self.tracker.log_email_attempt(
+                        to,
+                        subject,
+                        "failed",
+                        "Failed to initialize Gmail service",
+                        is_followup=is_followup,
+                    )
                     return {"success": False, "message_id": None}
 
             logger.info(f"Sending email to {to}")
@@ -262,37 +286,50 @@ class EmailSender:
                 f"Message: {message_text}"
             )  # Changed to debug level for long messages
 
-            message = self.create_message(to, subject, message_text, reply_to_message_id)
+            message = self.create_message(
+                to, subject, message_text, reply_to_message_id
+            )
             if not message:
                 logger.error("Failed to create email message")
-                self.tracker.log_email_attempt(to, subject, "failed", "Failed to create email message", is_followup=is_followup)
+                self.tracker.log_email_attempt(
+                    to,
+                    subject,
+                    "failed",
+                    "Failed to create email message",
+                    is_followup=is_followup,
+                )
                 return {"success": False, "message_id": None}
 
             # If this is a follow-up, try to get the thread ID from the original message
             send_params = {"userId": "me", "body": message}
             if reply_to_message_id:
                 try:
-                    original_message = self.service.users().messages().get(
-                        userId='me', 
-                        id=reply_to_message_id,
-                        format='minimal'
-                    ).execute()
-                    
-                    if 'threadId' in original_message:
-                        send_params["body"]["threadId"] = original_message['threadId']
+                    original_message = (
+                        self.service.users()
+                        .messages()
+                        .get(userId="me", id=reply_to_message_id, format="minimal")
+                        .execute()
+                    )
+
+                    if "threadId" in original_message:
+                        send_params["body"]["threadId"] = original_message["threadId"]
                         logger.info(f"Using thread ID: {original_message['threadId']}")
                 except Exception as e:
                     logger.warning(f"Could not get thread ID: {str(e)}")
 
             result = self.service.users().messages().send(**send_params).execute()
-            message_id = result.get('id')
+            message_id = result.get("id")
             logger.info(f"Email sent successfully to {to}, Message ID: {message_id}")
-            self.tracker.log_email_attempt(to, subject, "success", message_id=message_id, is_followup=is_followup)
+            self.tracker.log_email_attempt(
+                to, subject, "success", message_id=message_id, is_followup=is_followup
+            )
             return {"success": True, "message_id": message_id}
         except Exception as e:
             error_msg = str(e)
             logger.error(f"Error sending email: {error_msg}")
-            self.tracker.log_email_attempt(to, subject, "failed", error_msg, is_followup=is_followup)
+            self.tracker.log_email_attempt(
+                to, subject, "failed", error_msg, is_followup=is_followup
+            )
             return {"success": False, "message_id": None}
 
     def send_bulk_emails(
@@ -316,7 +353,9 @@ class EmailSender:
                 if not email or not isinstance(email, str):
                     logger.warning(f"Skipping invalid email address: {email}")
                     stats["failed"] += 1
-                    self.tracker.log_email_attempt(email, subject, "failed", "Invalid email address")
+                    self.tracker.log_email_attempt(
+                        email, subject, "failed", "Invalid email address"
+                    )
                     continue
 
                 # Extract name from email (assuming format: name@domain.com)
@@ -336,12 +375,14 @@ class EmailSender:
             except Exception as e:
                 error_msg = str(e)
                 logger.error(f"Error processing email {email}: {error_msg}")
-                self.tracker.log_email_attempt(email, subject, "failed", f"Processing error: {error_msg}")
+                self.tracker.log_email_attempt(
+                    email, subject, "failed", f"Processing error: {error_msg}"
+                )
                 stats["failed"] += 1
 
         # Export tracking data to Excel after bulk sending
         self.tracker.export_to_excel()
-        
+
         # Print summary statistics
         tracker_stats = self.tracker.get_statistics()
         logger.info(f"Tracking Summary:")
@@ -355,13 +396,13 @@ class EmailSender:
     def get_tracking_statistics(self) -> dict:
         """Get current tracking statistics."""
         return self.tracker.get_statistics()
-    
+
     def export_tracking_data(self, filename: str = None) -> None:
         """Export tracking data to Excel."""
         if filename:
             self.tracker.output_file = filename
         self.tracker.export_to_excel()
-    
+
     def clear_tracking_data(self) -> None:
         """Clear all tracking data."""
         self.tracker.clear_data()

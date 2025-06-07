@@ -2,14 +2,16 @@
 import { useRouter } from "next/navigation";
 import { useApplicationStore } from "@/store/useApplicationStore";
 import { X, User, Plus, Eye, Edit, Bold, Italic, List, ListOrdered, Link, Code, Quote, ArrowLeft, ArrowRight } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 
 export default function Step2Page() {
   const router = useRouter();
   const {
     emailList, setEmailList,
-    generatedTemplate, setGeneratedTemplate
+    generatedTemplate, setGeneratedTemplate,
+    generatedSubject, setGeneratedSubject,
+    setEmailStats
   } = useApplicationStore();
 
   const isComplete = emailList.length > 0;
@@ -17,8 +19,32 @@ export default function Step2Page() {
   const onCancel = () => {
     router.push("/new-application/step-1");
   };
-  const onNext = () => {
-    router.push("/new-application/step-3");
+  const [isSending, setIsSending] = useState(false);
+
+  const onNext = async () => {
+    setIsSending(true);
+    try {
+      const resp = await fetch("http://0.0.0.0:8000/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          recipients: emailList,
+          subject: generatedSubject,
+          content: generatedTemplate
+        })
+      });
+      const data = await resp.json();
+      if (typeof data.sent === "number" && typeof data.successful === "number" && typeof data.failed === "number") {
+        setEmailStats({ sent: data.sent, successful: data.successful, failed: data.failed });
+        router.push("/new-application/step-3");
+      } else {
+        alert("Failed to send emails. Please try again.");
+      }
+    } catch (e) {
+      alert("Error sending emails.");
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const [isPreviewMode, setIsPreviewMode] = useState(true);
@@ -60,7 +86,7 @@ export default function Step2Page() {
     // Helper to update a recipient
     const updateRecipient = (id: string, field: 'name' | 'email', value: string) => {
         const updated = emailList.map((contact) =>
-            contact.id === id ? { ...contact, [field]: value, initials: field === 'name' ? getInitials(value) : contact.initials } : contact
+            contact.id === id ? { ...contact, [field]: value } : contact
         );
         setEmailList(updated);
     };
@@ -79,12 +105,55 @@ export default function Step2Page() {
                 id: Date.now().toString(),
                 email: newEmail.trim().toLowerCase(),
                 name,
-                initials: getInitials(name)
             }
         ]);
         setNewName('');
         setNewEmail('');
     };
+
+    useEffect(() => {
+        // Fetch generated email subject, content, and recipients on mount
+        Promise.all([
+            fetch("http://0.0.0.0:8000/get-generated-email").then(res => res.json()),
+            fetch("http://0.0.0.0:8000/get-recipients").then(res => res.json())
+        ]).then(([emailData, recipientsData]) => {
+            if (emailData.subject) setGeneratedSubject(emailData.subject);
+            if (emailData.content) setGeneratedTemplate(emailData.content);
+            if (Array.isArray(recipientsData.recipients)) setEmailList(recipientsData.recipients);
+        });
+    }, [setGeneratedSubject, setGeneratedTemplate, setEmailList]);
+
+      // Debounce helpers
+  function useDebouncedEffect(effect: () => void, deps: any[], delay: number) {
+    const callback = useRef<ReturnType<typeof setTimeout> | null>(null);
+    useEffect(() => {
+      if (callback.current) clearTimeout(callback.current);
+      callback.current = setTimeout(effect, delay);
+      return () => {
+        if (callback.current) clearTimeout(callback.current);
+      };
+    }, deps);
+  }
+
+  useDebouncedEffect(() => {
+    if (emailList) {
+      fetch("http://0.0.0.0:8000/save-recipients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recipients: emailList })
+      });
+    }
+  }, [emailList], 1000);
+
+  useDebouncedEffect(() => {
+    if (emailList) {
+      fetch("http://0.0.0.0:8000/save-generated-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject: generatedSubject, content: generatedTemplate })
+      });
+    }
+  }, [generatedSubject, generatedTemplate], 1000);
 
     return (
         <div className="w-full max-h-[calc(100vh-64px)] h-screen flex-shrink-0 flex flex-col overflow-hidden">
@@ -98,7 +167,7 @@ export default function Step2Page() {
                                 <div key={contact.id} className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
                                     {/* Avatar */}
                                     <div className="w-12 h-12 min-w-12 min-h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-base">
-                                        {contact.initials}
+                                        {getInitials(contact.name)}
                                     </div>
                                     {/* Editable Name and Email stacked */}
                                     <div className="flex flex-col flex-1 min-w-0">
@@ -179,8 +248,8 @@ export default function Step2Page() {
                                     </label>
                                     <input
                                         type="text"
-                                        value="Application for Senior Software Engineer Position - TechCorp"
-                                        readOnly
+                                        value={generatedSubject}
+                                        onChange={e => setGeneratedSubject(e.target.value)}
                                         className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-900 focus:outline-none"
                                     />
                                 </div>
@@ -329,13 +398,13 @@ export default function Step2Page() {
                     </button>
                     <button
                         onClick={onNext}
-                        disabled={!isComplete}
-                        className={`px-6 py-3 font-semibold rounded-lg transition-colors ${isComplete
+                        disabled={!isComplete || isSending}
+                        className={`px-6 py-3 font-semibold rounded-lg transition-colors ${isComplete && !isSending
                             ? 'bg-blue-600 hover:bg-blue-700 text-white'
                             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            }`}
+                        }`}
                     >
-                        Send Emails
+                        {isSending ? 'Sending...' : 'Send Emails'}
                         <ArrowRight className="w-6 h-6 ml-2 inline mb-0.5" />
                     </button>
                 </div>

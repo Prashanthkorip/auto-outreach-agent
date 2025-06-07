@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Mail, Key, User, X } from "lucide-react";
 import * as Popover from "@radix-ui/react-popover";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { useApplicationStore } from "@/store/useApplicationStore";
 
 const stepTitles: Record<string, { title: string }> = {
   "/new-application/step-1": {
@@ -24,15 +25,72 @@ export default function Navbar() {
   const stepInfo = stepTitles[pathname] || null;
   const [openaiPopoverOpen, setOpenaiPopoverOpen] = useState(false);
   const [credentialsPopoverOpen, setCredentialsPopoverOpen] = useState(false);
-  const [openaiKey, setOpenaiKey] = useState("");
-  const [credentials, setCredentials] = useState("");
+  const {
+    openaiKey,
+    setOpenaiKey,
+    credentials,
+    setCredentials
+  } = useApplicationStore();
 
-  const handleSaveOpenaiKey = () => {
-    localStorage.setItem("openaiKey", openaiKey);
+  // Fetch OpenAI Key on popover open
+  useEffect(() => {
+    if (openaiPopoverOpen) {
+      fetch("http://0.0.0.0:8000/get-openai-key")
+        .then(res => res.json())
+        .then(data => setOpenaiKey(data.OPENAI_API_KEY || ""));
+    }
+  }, [openaiPopoverOpen, setOpenaiKey]);
+
+  // Fetch credentials on popover open
+  useEffect(() => {
+    if (credentialsPopoverOpen) {
+      fetch("http://0.0.0.0:8000/get-credentials")
+        .then(res => res.json())
+        .then(data => setCredentials(JSON.stringify(data.credentials, null, 2) || ""));
+    }
+  }, [credentialsPopoverOpen, setCredentials]);
+
+  // Store original values for change detection
+  const [originalOpenaiKey, setOriginalOpenaiKey] = useState("");
+  const [originalCredentials, setOriginalCredentials] = useState("");
+
+  // useEffect(() => {
+  //   if (openaiPopoverOpen) setOriginalOpenaiKey(openaiKey);
+  // }, [openaiPopoverOpen, openaiKey]);
+  // useEffect(() => {
+  //   if (credentialsPopoverOpen) setOriginalCredentials(credentials);
+  // }, [credentialsPopoverOpen, credentials]);
+
+  const handleSaveOpenaiKey = async () => {
+    if (openaiKey !== originalOpenaiKey) {
+      if (!window.confirm("You are about to change the OpenAI Key. Are you sure?")) return;
+      await fetch("http://0.0.0.0:8000/put-openai-key", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ OPENAI_API_KEY: openaiKey })
+      });
+      setOriginalOpenaiKey(openaiKey);
+    }
     setOpenaiPopoverOpen(false);
   };
-  const handleSaveCredentials = () => {
-    localStorage.setItem("credentials", credentials);
+  const handleSaveCredentials = async () => {
+    console.log("Saving credentials", credentials, originalCredentials);
+    if (credentials !== originalCredentials) {
+      if (!window.confirm("You are about to change credentials.json. Are you sure?")) return;
+      let parsed;
+      try {
+        parsed = JSON.parse(credentials);
+      } catch {
+        alert("Invalid JSON format for credentials.");
+        return;
+      }
+      await fetch("http://0.0.0.0:8000/put-credentials", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credentials: parsed })
+      });
+      setOriginalCredentials(credentials);
+    }
     setCredentialsPopoverOpen(false);
   };
 
@@ -124,7 +182,7 @@ export default function Navbar() {
                     placeholder='{"email": "your@email.com", "password": "your-app-password"}'
                     value={credentials}
                     onChange={(e) => setCredentials(e.target.value)}
-                    className="w-full h-84 px-3 py-2 text-base font-mono bg-gray-50 text-black border border-gray-200 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full h-84 px-3 py-2 text-base font-mono font-semibold bg-gray-50 text-black border border-gray-200 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <div className="flex justify-end">
                     <Popover.Close asChild>
