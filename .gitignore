@@ -25,6 +25,7 @@ email_template.txt
 resume_parsed.txt
 token.json
 email_tracker.xlsx
+temp_folder/
 
 # Virtual Environment
 venv/
