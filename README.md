@@ -53,6 +53,10 @@ Follow the prompts to:
 - `email_sender.py`: Sends emails to recipients
 - `config.py`: Configuration settings and constants
 
+## To make the reply code work, we need to change email account accesses.
+
 ## License
 
 All rights reserved.
+
+

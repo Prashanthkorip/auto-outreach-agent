@@ -19,6 +19,12 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+Prashanth_K.pdf
+email_dataset.csv
+email_template.txt
+resume_parsed.txt
+token.json
+email_tracker.xlsx
 
 # Virtual Environment
 venv/
