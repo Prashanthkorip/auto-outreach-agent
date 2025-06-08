@@ -130,23 +130,36 @@ export default function Step1Page() {
   const addEmailToList = () => {
     if (!emailInput.trim()) return;
 
-    const email = emailInput.trim().toLowerCase();
-    // Check if email already exists
-    if (emailList.some(contact => contact.email === email)) {
-      alert('Email already added to the list');
-      return;
+    // Split input by comma, space, or new line
+    const emails = emailInput
+      .split(/[,\s\n]+/)
+      .map((e: string) => e.trim().toLowerCase())
+      .filter(Boolean);
+
+    let added = false;
+    const newContacts = [...emailList];
+
+    emails.forEach((email: string) => {
+      // Basic email validation
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return;
+      if (newContacts.some(contact => contact.email === email)) return;
+      const derivedName = nameInput.trim() || deriveNameFromEmail(email);
+      const newContact: EmailContact = {
+        id: Date.now().toString() + Math.random().toString(36).slice(2),
+        email,
+        name: derivedName,
+      };
+      newContacts.push(newContact);
+      added = true;
+    });
+
+    if (!added) {
+      alert('No new valid emails to add.');
+    } else {
+      setEmailList(newContacts);
+      setEmailInput('');
+      setNameInput('');
     }
-
-    const derivedName = nameInput.trim() || deriveNameFromEmail(email);
-    const newContact: EmailContact = {
-      id: Date.now().toString(),
-      email,
-      name: derivedName,
-    };
-
-    setEmailList([...emailList, newContact]);
-    setEmailInput('');
-    setNameInput('');
   };
 
   // Remove email from list
@@ -402,7 +415,7 @@ export default function Step1Page() {
                     ))}
                     {/* Input Field */}
                     <input
-                      type="email"
+                      type="text"
                       value={emailInput}
                       onChange={(e) => setEmailInput(e.target.value)}
                       onKeyPress={handleEmailKeyPress}

@@ -30,8 +30,12 @@ interface ApplicationState {
   setOpenaiKey: (key: string) => void;
   credentials: string;
   setCredentials: (creds: string) => void;
-  emailStats: { sent: number; successful: number; failed: number } | null;
-  setEmailStats: (stats: { sent: number; successful: number; failed: number } | null) => void;
+  emailStats: {
+    sent: number;
+    successful: number;
+    failed: number;
+  };
+  setEmailStats: (stats: { sent: number; successful: number; failed: number }) => void;
 }
 
 export const useApplicationStore = create<ApplicationState>((set) => ({
@@ -57,8 +61,12 @@ export const useApplicationStore = create<ApplicationState>((set) => ({
   setOpenaiKey: (openaiKey: string) => set({ openaiKey }),
   credentials: "",
   setCredentials: (credentials: string) => set({ credentials }),
-  emailStats: null,
-  setEmailStats: (emailStats) => set({ emailStats }),
+  emailStats: {
+    sent: 0,
+    successful: 0,
+    failed: 0
+  },
+  setEmailStats: (emailStats: { sent: number; successful: number; failed: number }) => set({ emailStats }),
   reset: () => set({
     jobUrl: "",
     jobDescription: "",
@@ -71,7 +79,11 @@ export const useApplicationStore = create<ApplicationState>((set) => ({
     generatedTemplate: "",
     openaiKey: "",
     credentials: "",
-    emailStats: null
+    emailStats: {
+      sent: 0,
+      successful: 0,
+      failed: 0
+    }
   })
 }));
 
