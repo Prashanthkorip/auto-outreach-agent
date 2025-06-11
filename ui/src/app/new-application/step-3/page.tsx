@@ -12,25 +12,25 @@ export default function Step3Page() {
     <div className="w-full h-screen flex-shrink-0 p-6">
       <div className="max-w-4xl mx-auto p-6">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl font-bold text-foreground mb-4">
             Application Complete!
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             Your outreach emails have been successfully sent to all recipients.
           </p>
           {emailStats && (
             <div className="mb-6">
               <div className="flex justify-center gap-8 text-lg">
-                <div><span className="font-bold">Sent:</span> {emailStats.sent}</div>
-                <div><span className="font-bold text-green-700">Successful:</span> {emailStats.successful}</div>
-                <div><span className="font-bold text-red-700">Failed:</span> {emailStats.failed}</div>
+                <div><span className="font-bold text-foreground">Sent:</span> <span className="text-foreground">{emailStats.sent}</span></div>
+                <div><span className="font-bold text-green-600 dark:text-green-400">Successful:</span> <span className="text-green-600 dark:text-green-400">{emailStats.successful}</span></div>
+                <div><span className="font-bold text-destructive">Failed:</span> <span className="text-destructive">{emailStats.failed}</span></div>
               </div>
             </div>
           )}
           
           <button
             onClick={onComplete}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+            className="btn btn-primary"
           >
             View Application Dashboard
           </button>

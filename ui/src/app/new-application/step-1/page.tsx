@@ -264,10 +264,10 @@ export default function Step1Page() {
         <div className="w-full flex flex-col h-full">
           <div className="flex gap-8 h-full">
             {/* Left Panel - Job Information */}
-            <div className="flex flex-col bg-white rounded-lg border border-gray-200 p-6 w-7/12">
+            <div className="flex flex-col card p-6 w-7/12">
               {/* Job URL Input */}
-              <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-blue-600" />
+              <h3 className="text-lg font-medium text-card-foreground mb-3 flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-primary" />
                 Job Information
               </h3>
 
@@ -278,44 +278,46 @@ export default function Step1Page() {
                   value={jobUrl}
                   onChange={(e) => setJobUrl(e.target.value)}
                   placeholder="https://company.com/careers/job-title"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="input"
                 />
                 <button
                   type="button"
                   onClick={handleJobUrlScrape}
                   disabled={isScraping || !jobUrl.trim()}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${isScraping || !jobUrl.trim() ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                  className={`btn font-medium transition-colors ${isScraping || !jobUrl.trim() 
+                    ? 'bg-muted text-muted-foreground cursor-not-allowed' 
+                    : 'btn-primary'}`}
                 >
                   {isScraping ? 'Fetching...' : 'Fetch'}
                 </button>
               </div>
 
               {/* Job Description */}
-              <label className="block text-sm font-medium text-gray-700 mb-2 mt-3">
+              <label className="block text-sm font-medium text-muted-foreground mb-2 mt-3">
                 Job Description
               </label>
               <textarea
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
                 placeholder="Paste the job description here..."
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                className="textarea flex-1"
                 disabled={isScraping}
               />
               {isScraping && (
-                <div className="text-blue-600 text-sm mt-2">Scraping job description...</div>
+                <div className="text-primary text-sm mt-2">Scraping job description...</div>
               )}
             </div>
 
             {/* Right Panel - Tabbed Interface */}
             <div className="flex flex-col w-5/12">
-              <div className="bg-white rounded-lg border border-gray-200 flex flex-col h-full">
+              <div className="card flex flex-col h-full">
                 {/* Tab Header */}
-                <div className="flex border-b border-gray-200">
+                <div className="flex border-b border-border">
                   <button
                     onClick={() => setActiveTab('resume')}
                     className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'resume'
-                      ? 'border-blue-600 text-blue-600 bg-blue-50'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      ? 'border-primary text-primary bg-accent'
+                      : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted'
                       }`}
                   >
                     <FileText className="w-4 h-4 mr-2 inline" />
@@ -324,8 +326,8 @@ export default function Step1Page() {
                   <button
                     onClick={() => setActiveTab('template')}
                     className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'template'
-                      ? 'border-blue-600 text-blue-600 bg-blue-50'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      ? 'border-primary text-primary bg-accent'
+                      : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted'
                       }`}
                   >
                     <Mail className="w-4 h-4 mr-2 inline" />
@@ -348,34 +350,34 @@ export default function Step1Page() {
                       />
                       <label
                         htmlFor="resume-upload"
-                        className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 transition-colors flex items-center justify-center gap-2 text-gray-600 hover:text-blue-600 mb-4"
+                        className="w-full px-4 py-3 border-2 border-dashed border-border rounded-lg hover:border-primary transition-colors flex items-center justify-center gap-2 text-muted-foreground hover:text-primary mb-4 cursor-pointer"
                       >
                         <Upload className="w-5 h-5" />
                         {resumeFile ? resumeFile.name : 'Click to upload resume'}
                       </label>
 
                       {/* Resume Text */}
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-muted-foreground mb-2">
                         Resume Content
                       </label>
                       <textarea
                         value={resumeText}
                         onChange={(e) => setResumeText(e.target.value)}
                         placeholder="Paste your resume content here or upload a file..."
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                        className="textarea flex-1"
                       />
                     </>
                   ) : (
                     // Email Template Tab Content
                     <>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-muted-foreground mb-2">
                         Email Template
                       </label>
                       <textarea
                         value={generatedTemplate}
                         onChange={(e) => setGeneratedTemplate(e.target.value)}
                         placeholder="Your personalized email template will appear here. You can edit it manually or let AI generate it based on the job description and resume..."
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                        className="textarea flex-1"
                       />
                     </>
                   )}
@@ -385,29 +387,29 @@ export default function Step1Page() {
               {/* Email Recipients Input */}
               <div className="mt-6">
                 <div className="flex justify-between items-center mb-2">
-                  <label className="block text-sm font-medium text-gray-700 ">
+                  <label className="block text-sm font-medium text-muted-foreground">
                     Recipients
                   </label>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-muted-foreground">
                     {emailList.length} recipient{emailList.length !== 1 ? 's' : ''} selected
                   </div>
                 </div>
-                <div className="border border-gray-300 rounded-md p-3 bg-white min-h-[60px]">
-                  <div className="flex flex-wrap gap-2 items-center  max-h-[300px] overflow-auto">
+                <div className="border border-border rounded-md p-3 bg-card min-h-[60px]">
+                  <div className="flex flex-wrap gap-2 items-center max-h-[300px] overflow-auto">
                     {/* Email Chips */}
                     {emailList.map((contact) => (
                       <div
                         key={contact.id}
-                        className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex-shrink-0"
+                        className="flex items-center gap-2 bg-accent text-accent-foreground px-3 py-1 rounded-full text-sm flex-shrink-0 border border-border"
                       >
                         {/* Avatar */}
-                        <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
+                        <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-xs font-medium flex-shrink-0">
                           {generateInitials(contact.name)}
                         </div>
                         <span className="whitespace-nowrap">{contact.email}</span>
                         <button
                           onClick={() => removeEmailFromList(contact.id)}
-                          className="text-blue-600 hover:text-red-500 transition-colors flex-shrink-0"
+                          className="text-primary hover:text-destructive transition-colors flex-shrink-0"
                         >
                           &times;
                         </button>
@@ -420,7 +422,7 @@ export default function Step1Page() {
                       onChange={(e) => setEmailInput(e.target.value)}
                       onKeyPress={handleEmailKeyPress}
                       placeholder={emailList.length === 0 ? "Enter email addresses..." : "Add another email..."}
-                      className="flex-1 min-w-[200px] outline-none bg-transparent text-gray-900 placeholder-gray-500 py-1"
+                      className="flex-1 min-w-[200px] outline-none bg-transparent text-foreground placeholder-muted-foreground py-1"
                     />
                   </div>
                 </div>
@@ -433,7 +435,7 @@ export default function Step1Page() {
           <div className="mt-4 flex justify-between">
             <button
               onClick={onCancel}
-              className={`px-6 py-3 font-semibold rounded-lg transition-colors bg-gray-100 text-gray-900 border border-gray-200`}
+              className="btn btn-secondary"
             >
               <ArrowLeft className="w-6 h-6 mr-2 inline mb-0.5" />
               Cancel
@@ -441,9 +443,9 @@ export default function Step1Page() {
             <button
               onClick={onNext}
               disabled={!isComplete || isGeneratingEmail}
-              className={`px-6 py-3 font-semibold rounded-lg transition-colors ${isComplete && !isGeneratingEmail
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              className={`btn font-semibold ${isComplete && !isGeneratingEmail
+                ? 'btn-primary'
+                : 'bg-muted text-muted-foreground cursor-not-allowed border-border'
               }`}
             >
               {isGeneratingEmail ? 'Generating...' : 'Generate Email Template'}

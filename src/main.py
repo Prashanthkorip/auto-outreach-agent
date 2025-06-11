@@ -1,3 +1,4 @@
+import json
 import subprocess
 import threading
 import time
@@ -11,6 +12,29 @@ from src.core.config import PATH_HELPER
 import os
 
 
+def get_package_version(package_json_path):
+    with open(package_json_path, "r") as f:
+        return json.load(f).get("version")
+
+
+def get_build_version(version_file_path):
+    if not os.path.exists(version_file_path):
+        return None
+    with open(version_file_path, "r") as f:
+        return f.read().strip()
+
+
+def versions_differ(ui_dir):
+    out_dir = os.path.join(ui_dir, "out")
+    package_json = os.path.join(ui_dir, "package.json")
+    build_version_file = os.path.join(out_dir, "version.txt")
+
+    pkg_version = get_package_version(package_json)
+    build_version = get_build_version(build_version_file)
+
+    return pkg_version != build_version
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # ⏳ STARTUP code here
@@ -19,10 +43,10 @@ async def lifespan(app: FastAPI):
     out_dir = os.path.join(ui_dir, "out")
 
     # Build the frontend if needed
-    if not os.path.exists(out_dir):
+    if not os.path.exists(out_dir) or versions_differ(ui_dir):
         print("Building Next.js app...")
         subprocess.run(["npm", "install"], cwd=ui_dir, check=True)
-        subprocess.run(["npm", "run", "build"], cwd=ui_dir, check=True)
+        subprocess.run(["npm", "run", "build-stable"], cwd=ui_dir, check=True)
 
     # Dynamically mount static files after build
     app.mount("/", StaticFiles(directory=out_dir, html=True), name="static")

@@ -1,10 +1,11 @@
 {
   "name": "ui",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build-stable": "next build && node scripts/write-version.js",
+    "build": "npm version patch --no-git-tag-version && npm run build-stable",
     "start": "next start",
     "lint": "next lint"
   },

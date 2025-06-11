@@ -160,13 +160,13 @@ export default function Step2Page() {
             <div className="flex-1 flex flex-col p-6 max-h-full h-full overflow-hidden">
                 <div className="w-full flex flex-row gap-8 max-h-full h-full flex-1 overflow-hidden">
                     {/* Left Panel: Recipients */}
-                    <div className="w-2/5 bg-white rounded-lg border border-gray-200 p-6 flex flex-col h-full max-h-full overflow-hidden">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Recipients ({emailList.length})</h3>
+                    <div className="w-2/5 card p-6 flex flex-col h-full max-h-full overflow-hidden">
+                        <h3 className="text-lg font-semibold text-card-foreground mb-4">Recipients ({emailList.length})</h3>
                         <div className="flex flex-col gap-3 max-h-full overflow-y-auto">
                             {emailList.map((contact) => (
-                                <div key={contact.id} className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                                <div key={contact.id} className="flex items-center gap-3 bg-muted border border-border rounded-lg px-3 py-2">
                                     {/* Avatar */}
-                                    <div className="w-12 h-12 min-w-12 min-h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-base">
+                                    <div className="w-12 h-12 min-w-12 min-h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-base">
                                         {getInitials(contact.name)}
                                     </div>
                                     {/* Editable Name and Email stacked */}
@@ -175,20 +175,20 @@ export default function Step2Page() {
                                             type="text"
                                             value={contact.name}
                                             onChange={e => updateRecipient(contact.id, 'name', e.target.value)}
-                                            className="font-semibold text-gray-900 bg-transparent border-none outline-none px-0 text-base focus:bg-blue-50 rounded truncate"
+                                            className="font-semibold text-foreground bg-transparent border-none outline-none px-0 text-base focus:bg-accent rounded truncate"
                                             placeholder="Name"
                                         />
                                         <input
                                             type="email"
                                             value={contact.email}
                                             onChange={e => updateRecipient(contact.id, 'email', e.target.value)}
-                                            className="text-gray-700 bg-transparent border-none outline-none px-0 text-base focus:bg-blue-50 rounded truncate"
+                                            className="text-muted-foreground bg-transparent border-none outline-none px-0 text-base focus:bg-accent rounded truncate"
                                             placeholder="Email"
                                         />
                                     </div>
                                     <button
                                         onClick={() => setEmailList(emailList.filter(c => c.id !== contact.id))}
-                                        className="ml-auto text-gray-400 hover:text-red-500"
+                                        className="ml-auto text-muted-foreground hover:text-destructive transition-colors"
                                         title="Remove"
                                     >
                                         <X className="w-4 h-4" />
@@ -198,9 +198,9 @@ export default function Step2Page() {
 
                         </div>
                         {/* Add new recipient row */}
-                        <div className="text-gray-800 mt-5 mb-2">New Recipient</div>
-                        <div className="flex items-center gap-3 bg-gray-50 border border-dashed border-gray-300 rounded-lg px-3 py-2">
-                            <div className="w-12 h-12 min-w-12 min-h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 font-bold text-base">
+                        <div className="text-foreground mt-5 mb-2">New Recipient</div>
+                        <div className="flex items-center gap-3 bg-muted border border-dashed border-border rounded-lg px-3 py-2">
+                            <div className="w-12 h-12 min-w-12 min-h-12 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground font-bold text-base">
                                 <User className="w-5 h-5" />
                             </div>
                             <div className="flex flex-col flex-1 min-w-0">
@@ -208,7 +208,7 @@ export default function Step2Page() {
                                     type="text"
                                     value={newName}
                                     onChange={e => setNewName(e.target.value)}
-                                    className="font-medium text-gray-900 bg-transparent border-none outline-none px-0 focus:bg-blue-50 rounded"
+                                    className="font-medium text-foreground bg-transparent border-none outline-none px-0 focus:bg-accent rounded"
                                     placeholder="Name"
                                     onKeyDown={e => { if (e.key === 'Enter') addNewRecipient(); }}
                                 />
@@ -216,7 +216,7 @@ export default function Step2Page() {
                                     type="email"
                                     value={newEmail}
                                     onChange={e => setNewEmail(e.target.value)}
-                                    className="text-gray-700 bg-transparent border-none outline-none px-0 focus:bg-blue-50 rounded"
+                                    className="text-muted-foreground bg-transparent border-none outline-none px-0 focus:bg-accent rounded"
                                     placeholder="Email"
                                     onKeyDown={e => { if (e.key === 'Enter') addNewRecipient(); }}
                                     onBlur={addNewRecipient}
@@ -225,13 +225,13 @@ export default function Step2Page() {
 
                             <button
                                 onClick={addNewRecipient}
-                                className="ml-auto text-gray-400 hover:text-blue-600"
+                                className="ml-auto text-muted-foreground hover:text-primary transition-colors"
                                 title="Add"
                             >
                                 <Plus className="w-4 h-4" />
                             </button>
                         </div>
-                        <div className="mt-4 text-sm text-gray-500">{emailList.length} recipient{emailList.length !== 1 ? 's' : ''}</div>
+                        <div className="mt-4 text-sm text-muted-foreground">{emailList.length} recipient{emailList.length !== 1 ? 's' : ''}</div>
                     </div>
 
                     {/* Right Panel: Email Editor (existing) */}
@@ -239,33 +239,33 @@ export default function Step2Page() {
                         <div className="w-full flex flex-col max-h-full h-full">
 
                             {/* Email Composer */}
-                            <div className="flex-1 bg-white rounded-lg border border-gray-200 p-6 flex flex-col max-h-full overflow-hidden">
+                            <div className="flex-1 card p-6 flex flex-col max-h-full overflow-hidden">
 
                                 {/* Subject Line */}
                                 <div className="mb-4">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-medium text-muted-foreground mb-2">
                                         Subject
                                     </label>
                                     <input
                                         type="text"
                                         value={generatedSubject}
                                         onChange={e => setGeneratedSubject(e.target.value)}
-                                        className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-900 focus:outline-none"
+                                        className="input"
                                     />
                                 </div>
 
                                 {/* Email Content */}
                                 <div className="flex-1 mb-4 max-h-full h-full overflow-hidden flex flex-col">
                                     <div className="flex items-center justify-between mb-2">
-                                        <label className="block text-sm font-medium text-gray-700">
+                                        <label className="block text-sm font-medium text-muted-foreground">
                                             Email Content
                                         </label>
                                         <div className="flex items-center gap-2">
                                             <button
                                                 onClick={() => setIsPreviewMode(true)}
                                                 className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${isPreviewMode
-                                                    ? 'bg-blue-100 text-blue-700'
-                                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                    ? 'bg-accent text-foreground border border-border'
+                                                    : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border border-border'
                                                     }`}
                                             >
                                                 <Eye className="w-3 h-3 mr-1 inline" />
@@ -274,8 +274,8 @@ export default function Step2Page() {
                                             <button
                                                 onClick={() => setIsPreviewMode(false)}
                                                 className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${!isPreviewMode
-                                                    ? 'bg-blue-100 text-blue-700'
-                                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                    ? 'bg-accent text-foreground border border-border'
+                                                    : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border border-border'
                                                     }`}
                                             >
                                                 <Edit className="w-3 h-3 mr-1 inline" />
@@ -284,60 +284,60 @@ export default function Step2Page() {
                                         </div>
                                     </div>
 
-                                    <div className="flex-1 border border-gray-300 rounded-md max-h-full overflow-hidden h-full">
+                                    <div className="flex-1 border border-border rounded-md max-h-full overflow-hidden h-full">
                                         {!isPreviewMode ? (
                                             // Edit Mode
                                             <div className="flex flex-col h-full">
                                                 {/* Toolbar */}
-                                                <div className="border-b border-gray-200 bg-gray-50 px-3 py-2">
+                                                <div className="border-b border-border bg-muted px-3 py-2">
                                                     <div className="flex items-center gap-1">
                                                         <button
                                                             onClick={formatBold}
-                                                            className="p-2 text-gray-600 hover:bg-gray-200 rounded transition-colors"
+                                                            className="p-2 text-muted-foreground hover:bg-accent hover:text-foreground rounded transition-colors"
                                                             title="Bold (Ctrl+B)"
                                                         >
                                                             <Bold className="w-4 h-4" />
                                                         </button>
                                                         <button
                                                             onClick={formatItalic}
-                                                            className="p-2 text-gray-600 hover:bg-gray-200 rounded transition-colors"
+                                                            className="p-2 text-muted-foreground hover:bg-accent hover:text-foreground rounded transition-colors"
                                                             title="Italic (Ctrl+I)"
                                                         >
                                                             <Italic className="w-4 h-4" />
                                                         </button>
-                                                        <div className="w-px h-6 bg-gray-300 mx-1"></div>
+                                                        <div className="w-px h-6 bg-border mx-1"></div>
                                                         <button
                                                             onClick={formatBulletList}
-                                                            className="p-2 text-gray-600 hover:bg-gray-200 rounded transition-colors"
+                                                            className="p-2 text-muted-foreground hover:bg-accent hover:text-foreground rounded transition-colors"
                                                             title="Bullet List"
                                                         >
                                                             <List className="w-4 h-4" />
                                                         </button>
                                                         <button
                                                             onClick={formatNumberedList}
-                                                            className="p-2 text-gray-600 hover:bg-gray-200 rounded transition-colors"
+                                                            className="p-2 text-muted-foreground hover:bg-accent hover:text-foreground rounded transition-colors"
                                                             title="Numbered List"
                                                         >
                                                             <ListOrdered className="w-4 h-4" />
                                                         </button>
-                                                        <div className="w-px h-6 bg-gray-300 mx-1"></div>
+                                                        <div className="w-px h-6 bg-border mx-1"></div>
                                                         <button
                                                             onClick={formatLink}
-                                                            className="p-2 text-gray-600 hover:bg-gray-200 rounded transition-colors"
+                                                            className="p-2 text-muted-foreground hover:bg-accent hover:text-foreground rounded transition-colors"
                                                             title="Insert Link"
                                                         >
                                                             <Link className="w-4 h-4" />
                                                         </button>
                                                         <button
                                                             onClick={formatCode}
-                                                            className="p-2 text-gray-600 hover:bg-gray-200 rounded transition-colors"
+                                                            className="p-2 text-muted-foreground hover:bg-accent hover:text-foreground rounded transition-colors"
                                                             title="Code"
                                                         >
                                                             <Code className="w-4 h-4" />
                                                         </button>
                                                         <button
                                                             onClick={formatQuote}
-                                                            className="p-2 text-gray-600 hover:bg-gray-200 rounded transition-colors"
+                                                            className="p-2 text-muted-foreground hover:bg-accent hover:text-foreground rounded transition-colors"
                                                             title="Quote"
                                                         >
                                                             <Quote className="w-4 h-4" />
@@ -351,28 +351,28 @@ export default function Step2Page() {
                                                     value={generatedTemplate}
                                                     onChange={(e) => setGeneratedTemplate(e.target.value)}
                                                     placeholder="Compose your email here..."
-                                                    className="flex-1 p-4 text-gray-900 bg-white resize-none focus:outline-none h-full"
+                                                    className="flex-1 p-4 text-foreground bg-card resize-none focus:outline-none h-full"
                                                     style={{ fontFamily: 'inherit' }}
                                                 />
                                             </div>
                                         ) : (
                                             // Preview Mode
-                                            <div className="p-4 bg-white overflow-y-auto min-h-[400px] h-full">
-                                                <div className="max-w-none text-gray-900">
+                                            <div className="p-4 bg-card overflow-y-auto min-h-[400px] h-full">
+                                                <div className="max-w-none text-card-foreground">
                                                     <ReactMarkdown
                                                         components={{
-                                                            h1: ({ node, ...props }) => <h1 className="text-xl font-bold mb-3 text-gray-900" {...props} />,
-                                                            h2: ({ node, ...props }) => <h2 className="text-lg font-semibold mb-2 mt-4 text-gray-900" {...props} />,
-                                                            h3: ({ node, ...props }) => <h3 className="text-base font-medium mb-2 mt-3 text-gray-900" {...props} />,
-                                                            p: ({ node, ...props }) => <p className="mb-3 text-gray-700 leading-relaxed" {...props} />,
+                                                            h1: ({ node, ...props }) => <h1 className="text-xl font-bold mb-3 text-card-foreground" {...props} />,
+                                                            h2: ({ node, ...props }) => <h2 className="text-lg font-semibold mb-2 mt-4 text-card-foreground" {...props} />,
+                                                            h3: ({ node, ...props }) => <h3 className="text-base font-medium mb-2 mt-3 text-card-foreground" {...props} />,
+                                                            p: ({ node, ...props }) => <p className="mb-3 text-muted-foreground leading-relaxed" {...props} />,
                                                             ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-3 space-y-1" {...props} />,
                                                             ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-3 space-y-1" {...props} />,
-                                                            li: ({ node, ...props }) => <li className="text-gray-700" {...props} />,
-                                                            strong: ({ node, ...props }) => <strong className="font-semibold text-gray-900" {...props} />,
-                                                            em: ({ node, ...props }) => <em className="italic text-gray-700" {...props} />,
-                                                            code: ({ node, ...props }) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono text-gray-900" {...props} />,
-                                                            a: ({ node, ...props }) => <a className="text-blue-600 hover:underline" {...props} />,
-                                                            hr: ({ node, ...props }) => <hr className="my-4 border-gray-300" {...props} />,
+                                                            li: ({ node, ...props }) => <li className="text-muted-foreground" {...props} />,
+                                                            strong: ({ node, ...props }) => <strong className="font-semibold text-card-foreground" {...props} />,
+                                                            em: ({ node, ...props }) => <em className="italic text-muted-foreground" {...props} />,
+                                                            code: ({ node, ...props }) => <code className="bg-muted px-1 py-0.5 rounded text-sm font-mono text-card-foreground" {...props} />,
+                                                            a: ({ node, ...props }) => <a className="text-primary hover:underline" {...props} />,
+                                                            hr: ({ node, ...props }) => <hr className="my-4 border-border" {...props} />,
                                                         }}
                                                     >
                                                         {generatedTemplate || '*No content to preview*'}
@@ -391,7 +391,7 @@ export default function Step2Page() {
                 <div className="mt-4 flex justify-between">
                     <button
                         onClick={onCancel}
-                        className={`px-6 py-3 font-semibold rounded-lg transition-colors bg-gray-100 text-gray-900 border border-gray-200`}
+                        className="btn btn-secondary"
                     >
                         <ArrowLeft className="w-6 h-6 mr-2 inline mb-0.5" />
                         Back
@@ -399,9 +399,9 @@ export default function Step2Page() {
                     <button
                         onClick={onNext}
                         disabled={!isComplete || isSending}
-                        className={`px-6 py-3 font-semibold rounded-lg transition-colors ${isComplete && !isSending
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        className={`btn font-semibold ${isComplete && !isSending
+                            ? 'btn-primary'
+                            : 'bg-muted text-muted-foreground cursor-not-allowed border-border'
                         }`}
                     >
                         {isSending ? 'Sending...' : 'Send Emails'}

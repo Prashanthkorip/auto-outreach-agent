@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Brain, Mail, Key, User, X } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Brain, Mail, Key, User, X, Sun, Moon, Laptop } from "lucide-react";
 import * as Popover from "@radix-ui/react-popover";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useApplicationStore } from "@/store/useApplicationStore";
+import { useTheme } from 'next-themes';
 
 const stepTitles: Record<string, { title: string }> = {
 	"/new-application/step-1": {
@@ -27,6 +28,9 @@ export default function Navbar() {
 	const [credentialsPopoverOpen, setCredentialsPopoverOpen] = useState(false);
 	const { openaiKey, setOpenaiKey, credentials, setCredentials } =
 		useApplicationStore();
+	const { theme, setTheme, resolvedTheme } = useTheme();
+	const [mounted, setMounted] = useState(false);
+	useEffect(() => { setMounted(true); }, []);
 
 	// Fetch OpenAI Key on popover open
 	useEffect(() => {
@@ -104,23 +108,32 @@ export default function Navbar() {
 		setCredentialsPopoverOpen(false);
 	};
 
+	type ThemeType = 'light' | 'dark';
+	const themeIcons: Record<ThemeType, React.ReactElement> = {
+		light: <Sun className="w-4 h-4" />,
+		dark: <Moon className="w-4 h-4" />,
+	};
+	const themeOrder: ThemeType[] = ['light', 'dark'];
+	const currentTheme = (theme || 'dark') as ThemeType;
+	const nextTheme = themeOrder[(themeOrder.indexOf(currentTheme) + 1) % themeOrder.length];
+
 	return (
-		<nav className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-center shadow-none">
+		<nav className="nav fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-center">
 			<div className="flex items-center justify-center w-full h-full relative">
 				{/* Left: Logo */}
 				<div
-					className="absolute left-6 flex items-center gap-2"
+					className="absolute left-6 flex items-center gap-2 cursor-pointer"
 					onClick={() => router.push("/")}
 				>
-					<Brain className="w-6 h-6 text-blue-600" />
-					<span className="text-xl font-bold text-gray-900">
+					<Brain className="w-6 h-6 text-primary" />
+					<span className="text-xl font-bold text-foreground">
 						AIRA
 					</span>
 				</div>
 				{/* Center: Step Title/Subtitle */}
 				{stepInfo && (
 					<div className="flex flex-col items-center">
-						<span className="text-lg font-semibold text-gray-900">
+						<span className="text-lg font-semibold text-foreground">
 							{stepInfo.title}
 						</span>
 					</div>
@@ -133,22 +146,22 @@ export default function Navbar() {
 						onOpenChange={setOpenaiPopoverOpen}
 					>
 						<Popover.Trigger asChild>
-							<button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+							<button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all">
 								<Key className="w-4 h-4" />
 								OpenAI Key
 							</button>
 						</Popover.Trigger>
 						<Popover.Portal>
 							<Popover.Content
-								className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 w-[480px] z-50"
+								className="popover rounded-lg p-4 w-[480px] z-50"
 								sideOffset={8}
 							>
 								<div className="flex items-center justify-between mb-3">
-									<h3 className="text-sm font-semibold text-gray-900">
+									<h3 className="text-sm font-semibold text-card-foreground">
 										OpenAI API Key
 									</h3>
 									<Popover.Close asChild>
-										<button className="text-gray-400 hover:text-gray-600">
+										<button className="text-muted-foreground hover:text-foreground transition-colors">
 											<X className="w-4 h-4" />
 										</button>
 									</Popover.Close>
@@ -160,13 +173,13 @@ export default function Navbar() {
 										onChange={(e) =>
 											setOpenaiKey(e.target.value)
 										}
-										className="w-full h-20 px-3 py-2 text-base font-mono font-semibold bg-gray-50 text-black border border-gray-200 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+										className="textarea h-20 font-mono font-semibold"
 									/>
 									<div className="flex justify-end">
 										<Popover.Close asChild>
 											<button
 												onClick={handleSaveOpenaiKey}
-												className="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md  border border-gray-200 transition-colors"
+												className="btn btn-secondary"
 											>
 												Save
 											</button>
@@ -182,22 +195,22 @@ export default function Navbar() {
 						onOpenChange={setCredentialsPopoverOpen}
 					>
 						<Popover.Trigger asChild>
-							<button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+							<button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all">
 								<Mail className="w-4 h-4" />
 								credentials.json
 							</button>
 						</Popover.Trigger>
 						<Popover.Portal>
 							<Popover.Content
-								className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 w-[640px] z-50"
+								className="popover rounded-lg p-4 w-[640px] z-50"
 								sideOffset={8}
 							>
 								<div className="flex items-center justify-between mb-3">
-									<h3 className="text-sm font-semibold text-gray-900">
+									<h3 className="text-sm font-semibold text-card-foreground">
 										credentials.json
 									</h3>
 									<Popover.Close asChild>
-										<button className="text-gray-400 hover:text-gray-600">
+										<button className="text-muted-foreground hover:text-foreground transition-colors">
 											<X className="w-4 h-4" />
 										</button>
 									</Popover.Close>
@@ -209,13 +222,13 @@ export default function Navbar() {
 										onChange={(e) =>
 											setCredentials(e.target.value)
 										}
-										className="w-full h-84 px-3 py-2 text-base font-mono font-semibold bg-gray-50 text-black border border-gray-200 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+										className="textarea h-84 font-mono font-semibold"
 									/>
 									<div className="flex justify-end">
 										<Popover.Close asChild>
 											<button
 												onClick={handleSaveCredentials}
-												className="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-md transition-colors"
+												className="btn btn-secondary"
 											>
 												Save
 											</button>
@@ -225,6 +238,17 @@ export default function Navbar() {
 							</Popover.Content>
 						</Popover.Portal>
 					</Popover.Root>
+					{/* Single Theme Toggle Button */}
+					{mounted && (
+						<button
+							type="button"
+							className="p-2 rounded-lg bg-muted border border-border flex flex-row items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
+							onClick={() => setTheme(nextTheme)}
+							title={`Switch to ${nextTheme} mode`}
+						>
+							{themeIcons[currentTheme]} <span className="capitalize text-sm">{currentTheme}</span>
+						</button>
+					)}
 				</div>
 			</div>
 		</nav>
