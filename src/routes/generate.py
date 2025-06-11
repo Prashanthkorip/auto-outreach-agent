@@ -16,7 +16,7 @@ async def generate_email():
 
     with open(PATH_HELPER.JOB_DESCRIPTION, "r") as f:
         job_page_text = f.read().strip()
-        job_desc = (
+        job_page_text = (
             job_page_text[:7000] + "..." if len(job_page_text) > 7000 else job_page_text
         )
 

@@ -350,16 +350,16 @@ class EmailSender:
 
         for email in recipients:
             try:
-                if not email or not isinstance(email, str):
+                if not email or not isinstance(email["email"], str):
                     logger.warning(f"Skipping invalid email address: {email}")
                     stats["failed"] += 1
                     self.tracker.log_email_attempt(
-                        email, subject, "failed", "Invalid email address"
+                        email["email"], subject, "failed", "Invalid email address"
                     )
                     continue
 
                 # Extract name from email (assuming format: name@domain.com)
-                name = email.split("@")[0].replace(".", " ").title()
+                name = email["name"].title()
                 if not name:
                     logger.warning(f"Could not extract name from email: {email}")
                     name = "there"  # Fallback to a generic greeting
@@ -367,11 +367,15 @@ class EmailSender:
                 # Replace placeholder with actual name
                 personalized_message = template.replace("Hello", f"Hello {name}")
 
-                result = self.send_email(email, subject, personalized_message)
-                if result["success"]:
-                    stats["successful"] += 1
-                else:
-                    stats["failed"] += 1
+                print(
+                    f"Sending email to: {email['email']} {email["name"]} with subject: {subject} \n and content: {personalized_message}"
+                )
+
+                # result = self.send_email(email, subject, personalized_message)
+                # if result["success"]:
+                #     stats["successful"] += 1
+                # else:
+                #     stats["failed"] += 1
             except Exception as e:
                 error_msg = str(e)
                 logger.error(f"Error processing email {email}: {error_msg}")
