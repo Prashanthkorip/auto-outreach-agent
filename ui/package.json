@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build-stable": "next build && node scripts/write-version.js",
-    "build": "npm version patch --no-git-tag-version && npm run build-stable",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },

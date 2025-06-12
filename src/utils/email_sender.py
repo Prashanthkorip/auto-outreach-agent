@@ -346,30 +346,31 @@ class EmailSender:
         Returns:
             dict: Statistics about sent emails
         """
-        stats = {"total": len(recipients), "successful": 0, "failed": 0}
+        stats = {
+            "total": len(recipients),
+            "successful": 0,
+            "failed": 0,
+            "success": True,
+        }
 
-        for email in recipients:
+        for name, email in recipients:
             try:
-                if not email or not isinstance(email["email"], str):
+                if not email or not isinstance(email, str):
                     logger.warning(f"Skipping invalid email address: {email}")
                     stats["failed"] += 1
                     self.tracker.log_email_attempt(
-                        email["email"], subject, "failed", "Invalid email address"
+                        email, subject, "failed", "Invalid email address"
                     )
                     continue
 
                 # Extract name from email (assuming format: name@domain.com)
-                name = email["name"].title()
+                name = name.title()
                 if not name:
                     logger.warning(f"Could not extract name from email: {email}")
                     name = "there"  # Fallback to a generic greeting
 
                 # Replace placeholder with actual name
                 personalized_message = template.replace("Hello", f"Hello {name}")
-
-                print(
-                    f"Sending email to: {email['email']} {email["name"]} with subject: {subject} \n and content: {personalized_message}"
-                )
 
                 result = self.send_email(email, subject, personalized_message)
                 stats["success"] = stats["success"] or result["success"]

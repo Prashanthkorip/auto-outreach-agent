@@ -28,7 +28,7 @@ async def send_generated_email():
         with open(PATH_HELPER.RECIPIENT_EMAILS, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                recipients.append(row)
+                recipients.append((row["name"], row["email"]))
         stats = email_sender.send_bulk_emails(recipients, subject, content)
         if stats["success"]:
             with open(PATH_HELPER.JOB_URL, "r") as f:
