@@ -35,7 +35,7 @@ export default function Navbar() {
 	// Fetch OpenAI Key on popover open
 	useEffect(() => {
 		if (openaiPopoverOpen) {
-			fetch("http://0.0.0.0:8000/get-openai-key")
+			fetch("http://localhost:8000/get-openai-key")
 				.then((res) => res.json())
 				.then((data) => setOpenaiKey(data.OPENAI_API_KEY || ""));
 		}
@@ -44,7 +44,7 @@ export default function Navbar() {
 	// Fetch credentials on popover open
 	useEffect(() => {
 		if (credentialsPopoverOpen) {
-			fetch("http://0.0.0.0:8000/get-credentials")
+			fetch("http://localhost:8000/get-credentials")
 				.then((res) => res.json())
 				.then((data) =>
 					setCredentials(
@@ -73,7 +73,7 @@ export default function Navbar() {
 				)
 			)
 				return;
-			await fetch("http://0.0.0.0:8000/put-openai-key", {
+			await fetch("http://localhost:8000/put-openai-key", {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ OPENAI_API_KEY: openaiKey }),
@@ -98,7 +98,7 @@ export default function Navbar() {
 				alert("Invalid JSON format for credentials.");
 				return;
 			}
-			await fetch("http://0.0.0.0:8000/put-credentials", {
+			await fetch("http://localhost:8000/put-credentials", {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ credentials: parsed }),

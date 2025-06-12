@@ -24,7 +24,7 @@ export default function Step2Page() {
   const onNext = async () => {
     setIsSending(true);
     try {
-      const resp = await fetch("http://0.0.0.0:8000/send-email", {
+      const resp = await fetch("http://localhost:8000/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -114,8 +114,8 @@ export default function Step2Page() {
     useEffect(() => {
         // Fetch generated email subject, content, and recipients on mount
         Promise.all([
-            fetch("http://0.0.0.0:8000/get-generated-email").then(res => res.json()),
-            fetch("http://0.0.0.0:8000/get-recipients").then(res => res.json())
+            fetch("http://localhost:8000/get-generated-email").then(res => res.json()),
+            fetch("http://localhost:8000/get-recipients").then(res => res.json())
         ]).then(([emailData, recipientsData]) => {
             if (emailData.subject) setGeneratedSubject(emailData.subject);
             if (emailData.content) setGeneratedTemplate(emailData.content);
@@ -137,7 +137,7 @@ export default function Step2Page() {
 
   useDebouncedEffect(() => {
     if (emailList) {
-      fetch("http://0.0.0.0:8000/save-recipients", {
+      fetch("http://localhost:8000/save-recipients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ recipients: emailList })
@@ -147,7 +147,7 @@ export default function Step2Page() {
 
   useDebouncedEffect(() => {
     if (emailList) {
-      fetch("http://0.0.0.0:8000/save-generated-email", {
+      fetch("http://localhost:8000/save-generated-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ subject: generatedSubject, content: generatedTemplate })

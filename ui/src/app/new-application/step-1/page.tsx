@@ -30,7 +30,7 @@ export default function Step1Page() {
   const onNext = async () => {
     setIsGeneratingEmail(true);
     try {
-      const resp = await fetch("http://0.0.0.0:8000/generate-email", {
+      const resp = await fetch("http://localhost:8000/generate-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ /* include necessary fields here, e.g. jobDescription, resumeText, etc. */ })
@@ -62,7 +62,7 @@ export default function Step1Page() {
         try {
           const formData = new FormData();
           formData.append("file", file);
-          const resp = await fetch("http://0.0.0.0:8000/upload-resume", {
+          const resp = await fetch("http://localhost:8000/upload-resume", {
             method: "POST",
             body: formData
           });
@@ -85,7 +85,7 @@ export default function Step1Page() {
     setJobDescription("Loading job description...\n\nYou can edit or paste the job description here...");
     try {
       console.log("Scraping job description for URL: ", jobUrl);
-      const resp = await fetch("http://0.0.0.0:8000/scrape-job", {
+      const resp = await fetch("http://localhost:8000/scrape-job", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: jobUrl })
@@ -190,7 +190,7 @@ export default function Step1Page() {
   // Job Description sync
   useDebouncedEffect(() => {
     if (jobDescription.trim()) {
-      fetch("http://0.0.0.0:8000/save-job-description", {
+      fetch("http://localhost:8000/save-job-description", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description: jobDescription })
@@ -201,7 +201,7 @@ export default function Step1Page() {
   // Job Description sync
   useDebouncedEffect(() => {
     if (jobUrl.trim()) {
-      fetch("http://0.0.0.0:8000/save-job-url", {
+      fetch("http://localhost:8000/save-job-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: jobUrl })
@@ -212,7 +212,7 @@ export default function Step1Page() {
   // Resume Content sync
   useDebouncedEffect(() => {
     if (resumeText.trim()) {
-      fetch("http://0.0.0.0:8000/save-resume-description", {
+      fetch("http://localhost:8000/save-resume-description", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description: resumeText })
@@ -223,7 +223,7 @@ export default function Step1Page() {
   // Email Template sync
   useDebouncedEffect(() => {
     if (generatedTemplate.trim()) {
-      fetch("http://0.0.0.0:8000/save-email-template", {
+      fetch("http://localhost:8000/save-email-template", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description: generatedTemplate })
@@ -233,7 +233,7 @@ export default function Step1Page() {
 
   useDebouncedEffect(() => {
     if (emailList) {
-      fetch("http://0.0.0.0:8000/save-recipients", {
+      fetch("http://localhost:8000/save-recipients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ recipients: emailList })
@@ -244,11 +244,11 @@ export default function Step1Page() {
   useEffect(() => {
     // Fetch all initial data in parallel
     Promise.all([
-      fetch("http://0.0.0.0:8000/get-job-url").then(res => res.json()),
-      fetch("http://0.0.0.0:8000/get-job-description").then(res => res.json()),
-      fetch("http://0.0.0.0:8000/get-resume-description").then(res => res.json()),
-      fetch("http://0.0.0.0:8000/get-email-template").then(res => res.json()),
-      fetch("http://0.0.0.0:8000/get-recipients").then(res => res.json()),
+      fetch("http://localhost:8000/get-job-url").then(res => res.json()),
+      fetch("http://localhost:8000/get-job-description").then(res => res.json()),
+      fetch("http://localhost:8000/get-resume-description").then(res => res.json()),
+      fetch("http://localhost:8000/get-email-template").then(res => res.json()),
+      fetch("http://localhost:8000/get-recipients").then(res => res.json()),
     ]).then(([jobUrl, jobDesc, resumeDesc, emailTemplate, recipients]) => {
       setJobUrl(jobUrl.url || "");
       setJobDescription(jobDesc.description || "");

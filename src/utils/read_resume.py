@@ -73,7 +73,7 @@ class PDFExtractor:
 
     def clean_text(self, text: str) -> str:
         """
-        Keep only alphanumeric characters and basic punctuation: []\@.:/,+- and space.
+        Keep only alphanumeric characters and basic punctuation: [].:/,+- and space.
         Removes all other characters including invisible symbols and weird artifacts.
         """
         allowed_chars = re.compile(r"[^a-zA-Z0-9\s\[\]\\@.:/,+\-•*‣▪●]")
