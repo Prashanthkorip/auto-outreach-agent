@@ -371,11 +371,12 @@ class EmailSender:
                     f"Sending email to: {email['email']} {email["name"]} with subject: {subject} \n and content: {personalized_message}"
                 )
 
-                # result = self.send_email(email, subject, personalized_message)
-                # if result["success"]:
-                #     stats["successful"] += 1
-                # else:
-                #     stats["failed"] += 1
+                result = self.send_email(email, subject, personalized_message)
+                stats["success"] = stats["success"] or result["success"]
+                if result["success"]:
+                    stats["successful"] += 1
+                else:
+                    stats["failed"] += 1
             except Exception as e:
                 error_msg = str(e)
                 logger.error(f"Error processing email {email}: {error_msg}")
