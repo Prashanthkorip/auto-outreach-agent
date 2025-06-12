@@ -8,6 +8,8 @@ import json
 load_dotenv()
 
 PATH_HELPER = PathHelper()
+PATH_HELPER.initialize_resources()
+
 
 # OpenAI Configuration
 

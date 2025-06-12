@@ -1,3 +1,5 @@
+from src.core.config import PATH_HELPER
+
 import json
 import subprocess
 import threading
@@ -6,9 +8,8 @@ import webbrowser
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from .routes import router
+from src.routes import router
 from contextlib import asynccontextmanager
-from src.core.config import PATH_HELPER
 import os
 
 
@@ -50,8 +51,6 @@ async def lifespan(app: FastAPI):
 
     # Dynamically mount static files after build
     app.mount("/", StaticFiles(directory=out_dir, html=True), name="static")
-
-    PATH_HELPER.initialize_resources()
 
     # Open the browser in a background thread
     def open_browser():

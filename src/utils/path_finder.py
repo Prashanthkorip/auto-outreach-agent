@@ -46,22 +46,21 @@ class PathHelper:
                 else:
                     new_lines.append(line)
 
-            if openai_api_key:
-                # ✅ Save to JSON
-                os.makedirs(os.path.dirname(self.OPENAI_API_JSON), exist_ok=True)
-                with open(self.OPENAI_API_JSON, "w") as f:
-                    json.dump(
-                        {
-                            "OPENAI_API_KEY": openai_api_key,
-                            "OPENAI_MODEL": "gpt-4o-mini",
-                        },
-                        f,
-                        indent=2,
-                    )
+            # ✅ Save to JSON
+            os.makedirs(os.path.dirname(self.OPENAI_API_JSON), exist_ok=True)
+            with open(self.OPENAI_API_JSON, "w") as f:
+                json.dump(
+                    {
+                        "OPENAI_API_KEY": openai_api_key,
+                        "OPENAI_MODEL": "gpt-4o-mini",
+                    },
+                    f,
+                    indent=2,
+                )
 
-                # ✅ Rewrite .env without the key
-                with open(env_file, "w") as f:
-                    f.writelines(new_lines)
+            # ✅ Rewrite .env without the key
+            with open(env_file, "w") as f:
+                f.writelines(new_lines)
 
         # Move credentials.json and token.json to data/env/ if present
         for src, dst in [
