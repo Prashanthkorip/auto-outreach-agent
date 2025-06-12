@@ -32,30 +32,41 @@ class PathHelper:
         os.makedirs(self.ENV, exist_ok=True)
         os.makedirs(self.WORKING, exist_ok=True)
 
-        # Move OPENAI_API_KEY from .env to data/env/OPENAI_API_KEY.txt if present
-        env_file = os.path.join(self.BASE_DIR, ".env")
-        if os.path.exists(env_file):
-            with open(env_file, "r") as f:
-                lines = f.readlines()
-
-            openai_api_key = None
-
-            for line in lines:
-                if line.strip().startswith("OPENAI_API_KEY="):
-                    openai_api_key = line.strip().split("=", 1)[1]
-                    break
-
-            # ✅ Save to JSON
+        if not os.path.exists(self.OPENAI_API_JSON):
             os.makedirs(os.path.dirname(self.OPENAI_API_JSON), exist_ok=True)
             with open(self.OPENAI_API_JSON, "w") as f:
                 json.dump(
                     {
-                        "OPENAI_API_KEY": openai_api_key,
+                        "OPENAI_API_KEY": "",
                         "OPENAI_MODEL": "gpt-4o-mini",
                     },
                     f,
                     indent=2,
                 )
+
+            # Move OPENAI_API_KEY from .env to data/env/OPENAI_API_KEY.txt if present
+            env_file = os.path.join(self.BASE_DIR, ".env")
+            if os.path.exists(env_file):
+                with open(env_file, "r") as f:
+                    lines = f.readlines()
+
+                openai_api_key = None
+
+                for line in lines:
+                    if line.strip().startswith("OPENAI_API_KEY="):
+                        openai_api_key = line.strip().split("=", 1)[1]
+                        break
+
+                if openai_api_key:
+                    with open(self.OPENAI_API_JSON, "w") as f:
+                        json.dump(
+                            {
+                                "OPENAI_API_KEY": openai_api_key,
+                                "OPENAI_MODEL": "gpt-4o-mini",
+                            },
+                            f,
+                            indent=2,
+                        )
 
         # Move credentials.json and token.json to data/env/ if present
         for src, dst in [

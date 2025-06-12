@@ -57,3 +57,4 @@ email_tracker.xlsx
 
 # Data files -- contains sensitive information
 data/
+email_template.txt
